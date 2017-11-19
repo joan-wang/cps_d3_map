@@ -6,10 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CPS School Safety</title>
 
-  <link rel="stylesheet" href="lib/bootstrap.min.css">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css">    
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="style.css">   
   <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
 
@@ -17,39 +20,31 @@
   <div class="container">
     <div class="row">
       <div class="col-md-6">
-          <div id="titleparent">
-            <div id="titleholder">
-              <h1 class="projtitle">Safety in Chicago Public Schools</h1>
-              <h4>A glance at CPS Safe Passage Routes, crime, and student safety</h4>
-            </div>
-          </div>
+        <h1 class="projtitle">Safety in Chicago Public Schools</h1>
+        <h4>A glance at CPS Safe Passage Routes, crime, and student safety</h4>
+      </div>
+      <div class='col-md-6'>
+        <p> Select a school on the map or search here </p>
+        <div id='search'></div>
       </div>
     </div>
   </div>
 </div> 
 
-<div id='main section'>
+
+<div id='main-section'>
   <div class="container">
     <div class="row">
-      <div id='map' class="col-md-6">
-      </div>
-      <div class="col-md-6">
-        <div class="row">
-          <div class="span6"></div>
-        </div>
-        <div class="row">
-          <div class="span3"></div>            
-          <div class="span3"></div>
-
-        </div>
-      </div>
+      <div class="col-md-6" id='map'></div>
+      <div class="col-md-6" id='info-panel'></div>
+    
+    </div>    
   </div> 
 </div>
 
 <script type="text/javascript" src="lib/d3.v4.min.js"></script>
-<script src="lib/jquery-2.2.1.min.js"></script>
-<script src="lib/bootstrap.min.js"></script>
-<script type="text/javascript" src="script.js"></script>
+<script type="text/javascript" src="scripts/script.js"></script>
+<script type="text/javascript" src="scripts/autocomplete.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
 </body>
 </html>
