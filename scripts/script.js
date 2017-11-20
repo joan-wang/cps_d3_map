@@ -1,13 +1,14 @@
 // Autocomplete options
 var keys = [];
 
+// TO DO: Fix margin convention
 // Set spacing for info panel
 var margin = {top: 20, right: 20, bottom: 10, left: 20}
 var width = 550 - margin.left - margin.right;
 var height = 700 - margin.top - margin.bottom;
 
 // Set spacing for charts in info panel
-var chart_margin = {left: 50, right:10, top: 10, bottom:50}
+var chart_margin = {left: 50, right:10, top: 10, bottom:100}
 var chart_width = width/2 - chart_margin.left - chart_margin.right
 var chart_height = height*0.6 - chart_margin.bottom - chart_margin.top
 	
@@ -31,14 +32,19 @@ var map = new L.Map("map", {center: [41.8256, -87.645], zoom: 11})
 var svg1 = d3.select(map.getPanes().overlayPane).append("svg");
 var g1 = svg1.append("g").attr("class", "leaflet-zoom-hide");
 
-// Info panel and contents are svg2
+// Info panel info is svg2
 var svg2 = d3.select('#info-panel')
 	.append('svg')
 	.attr("preserveAspectRatio", "xMinYMin meet")
   	.attr("viewBox", "0 0 550 700")
 
-var g2 = svg2.append("g")
+var g2a = svg2.append("g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var g2b = svg2.append("g")
+	.attr("transform", "translate(" + (margin.left + 0.5*width) + "," + margin.top + ")");
+
+
 
 // Load multiple data files in parallel
 var schools, passage, remaining = 2;
@@ -57,7 +63,7 @@ d3.json("data/Chicago Public Schools - School Locations SY1617.geojson", functio
 			d.enrollment = "TBD"
 			d.safePassage = "TBD"
 			d.attendance = [{'year': 2012, 'att': 90}, {'year': 2013, 'att': 92}, {'year': 2014, 'att': 94}, {'year': 2015, 'att': 96}, {'year': 2016, 'att': 98}, {'year': 2017, 'att': 100}]
-			d.safety = [{'year': 2016, 'safety': 1}, {'year': 2017, 'safety': 4}]
+			d.safety = [{'year': 2016, 'safety': 1}, {'year': 2017, 'safety': 5}]
 			// TO DO: remove this dummy data after updating geojson to include this info
 		});
 		schools = collection;
@@ -171,18 +177,28 @@ function loadMap() {
 function showPanel(selection) {
 	// Fill in text info about selected school
 	textFields = [[selection.shortName, 'School name: '], 
-		[selection.safePassage, "Safe Passage School: "],
 		[selection.commArea, 'Neighborhood: '], 
+		[selection.safePassage, "Safe Passage School: "],
 		[selection.enrollment, 'Student enrollment: '],
 		[selection.numCrimes, 'Number of crimes within 1 mile in 2016: ']]
 	
 	for (var i = 0; i < textFields.length; i++) { 
-		g2.append('text')
+		g2a.append('text')
 			.attr('font-size', 20)
 			.attr("transform", "translate(" + margin.left + " ," + (margin.top + 27*i) + ")")
 			.text(textFields[i][1] + textFields[i][0])
 		}
 
+	g2a.append('text')
+		.attr('font-size', 12)
+		.attr("transform", "translate(" + margin.left + " ," + (height - 30) + ")")
+		.text('Sources: Chicago Public Schools Safe Passage Routes SY16-17, City of Chicago Crimes 2016, ')
+	
+	g2a.append('text')
+		.attr('font-size', 12)
+		.attr("transform", "translate(" + margin.left + " ," + (height - 15) + ")")
+		.text('Chicago Public Schools Progress Reports and Attendance Rates ')
+	
 	attendanceChart(selection);
 	safetyChart(selection);
 }
@@ -201,31 +217,38 @@ function attendanceChart(selection) {
 	y.domain([0, d3.max(attendance, function(d) { return d.att; })]);
 
 	//Set axes
-	g2.append('g')
+	g2a.append('g')
 		.attr('class', 'axis axis--x')
 		.attr('transform', 'translate(' + 0 + ',' + (height-chart_margin.bottom) + ')')
 		.call(d3.axisBottom(x).ticks(6).tickFormat(d3.format("d")));
 
-	g2.append('g')
+	g2a.append('g')
 		.attr('class', 'axis axis--y')
 		.attr('transform', 'translate(' + chart_margin.left + ',' + 0 + ')')
 		.call(d3.axisLeft(y).ticks(10));
 	 
 	
 	//Label axes
-	g2.append('text')
-		.attr('transform', 'translate(' + (chart_width/2 + chart_margin.left) + ',' + (height - chart_margin.bottom/5) + ')')
+	g2a.append('text')
+		.attr('transform', 'translate(' + (chart_width/2 + chart_margin.left) + ',' + (height - chart_margin.bottom/1.7) + ')')
 		.attr('text-anchor', 'middle')
 		.text('Year')
 		.style('font-size', 14)
 	
-	g2.append('text')
-		.attr('transform', "translate(" + 10 + "," + (height * 0.7) + ")" + "rotate(-90)")
+	g2a.append('text')
+		.attr('transform', "translate(" + 15 + "," + (height * 0.63) + ")" + "rotate(-90)")
 		.attr('text-anchor', 'middle')
 		.text('Attendance Rate (%)')
 		.style('font-size', 14)
 
-  	g2.append("path")
+	// Label chart
+	g2a.append('text')
+		.attr('transform', "translate(" + (chart_width/2 + chart_margin.left) + "," + (height * 1/3) + ")")
+		.attr('text-anchor', 'middle')
+		.text('Historical Attendace Rate')
+		.style('font-size', 16)
+
+  	g2a.append("path")
       	.datum(attendance)
       	.attr("fill", "none")
       	.attr("stroke", "steelblue")
@@ -237,42 +260,49 @@ function attendanceChart(selection) {
 
 function safetyChart(selection) {
 	var safety = selection.safety
-	var x = d3.scaleLinear()
-		.rangeRound([width/2, chart_margin.left + chart_width]);
-	var y = d3.scaleBand()
-		.rangeRound([(height-chart_margin.bottom) , (height-chart_margin.bottom-chart_height)]);
+	var x = d3.scaleOrdinal()
+		.range([chart_margin.left, chart_margin.left + chart_width]);
+	var y = d3.scaleLinear()
+		.range([(height-chart_margin.bottom) , (height-chart_margin.bottom-chart_height)]);
 	var line = d3.line()
 		.x(function(d) { return x(d.year); })
 		.y(function(d) { return y(d.safety); });
-
+	console.log(selection.safety)
 	x.domain(d3.extent(safety, function(d) { return d.year; }));
-	y.domain([0, 4]);
+	y.domain([0,5]);
 
 	//Set axes
-	g2.append('g')
+	g2b.append('g')
 		.attr('class', 'axis axis--x')
-		.attr('transform', 'translate(' + (width/2)+ ',' + (height-chart_margin.bottom) + ')')
-		.call(d3.axisBottom(x).ticks(2).tickFormat(d3.format("d")));
+		.attr('transform', 'translate(' + 0 + ',' + (height-chart_margin.bottom) + ')')
+		.call(d3.axisBottom(x).ticks(1));
 
-	g2.append('g')
+	g2b.append('g')
 		.attr('class', 'axis axis--y')
 		.attr('transform', 'translate(' + chart_margin.left + ',' + 0 + ')')
 		.call(d3.axisLeft(y).ticks(5));
 	
 	//Label axes
-	g2.append('text')
-		.attr('transform', 'translate(' + (chart_width/2 + chart_margin.left) + ',' + (height - chart_margin.bottom/5) + ')')
+	g2b.append('text')
+		.attr('transform', 'translate(' + (chart_width/2 + chart_margin.left) + ',' + (height - chart_margin.bottom/1.7) + ')')
 		.attr('text-anchor', 'middle')
 		.text('Year')
 		.style('font-size', 14)
 	
-	g2.append('text')
-		.attr('transform', "translate(" + 10 + "," + (height * 0.7) + ")" + "rotate(-90)")
+	g2b.append('text')
+		.attr('transform', "translate(" + 20 + "," + (height * 0.63) + ")" + "rotate(-90)")
 		.attr('text-anchor', 'middle')
-		.text('Attendance Rate (%)')
+		.text('School Survey Safety Rating')
 		.style('font-size', 14)
+	
+	// Label chart
+	g2a.append('text')
+		.attr('transform', "translate(" + (chart_width*1.5 + chart_margin.left*2) + "," + (height * 1/3) + ")")
+		.attr('text-anchor', 'middle')
+		.text('Change in Safety Rating')
+		.style('font-size', 16)
 
-  	g2.append("path")
+	g2b.append("path")
       	.datum(safety)
       	.attr("fill", "none")
       	.attr("stroke", "steelblue")
