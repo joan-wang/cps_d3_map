@@ -1,11 +1,16 @@
 // Autocomplete options
 var keys = [];
 
-// Set spacing guidelines for info panel
-var margin = {top: 20, right: 10, bottom: 10, left: 10}
+// Set spacing for info panel
+var margin = {top: 20, right: 20, bottom: 10, left: 20}
 var width = 550 - margin.left - margin.right;
 var height = 700 - margin.top - margin.bottom;
 
+// Set spacing for charts in info panel
+var chart_margin = {left: 50, right:10, top: 10, bottom:50}
+var chart_width = width/2 - chart_margin.left - chart_margin.right
+var chart_height = height*0.6 - chart_margin.bottom - chart_margin.top
+	
 // Define custom icon
 var schoolIcon = L.icon({
 	iconUrl: 'data/school_icon.png',
@@ -13,7 +18,7 @@ var schoolIcon = L.icon({
 	});
 
 // Create map object from Leaflet
-var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
+var map = new L.Map("map", {center: [41.8256, -87.645], zoom: 11})
     .addLayer(new L.TileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 	subdomains: 'abcd',
@@ -30,7 +35,8 @@ var g1 = svg1.append("g").attr("class", "leaflet-zoom-hide");
 var svg2 = d3.select('#info-panel')
 	.append('svg')
 	.attr("preserveAspectRatio", "xMinYMin meet")
-  	.attr("viewBox", "0 0 450 450")
+  	.attr("viewBox", "0 0 550 700")
+
 var g2 = svg2.append("g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -50,14 +56,9 @@ d3.json("data/Chicago Public Schools - School Locations SY1617.geojson", functio
 			d.safetyRating = "TBD"
 			d.enrollment = "TBD"
 			d.safePassage = "TBD"
-			d.att12 = 90
-			d.att13 = 92
-			d.att14 = 94
-			d.att15 = 96
-			d.att16 = 98
-			d.att17 = 100
-			d.safety16 = 1
-			d.safety17 = 3
+			d.attendance = [{'year': 2012, 'att': 90}, {'year': 2013, 'att': 92}, {'year': 2014, 'att': 94}, {'year': 2015, 'att': 96}, {'year': 2016, 'att': 98}, {'year': 2017, 'att': 100}]
+			d.safety = [{'year': 2016, 'safety': 1}, {'year': 2017, 'safety': 4}]
+			// TO DO: remove this dummy data after updating geojson to include this info
 		});
 		schools = collection;
 		dummy_school = schools.features[0]; 
@@ -177,7 +178,7 @@ function showPanel(selection) {
 	
 	for (var i = 0; i < textFields.length; i++) { 
 		g2.append('text')
-			.attr('font-size', 18)
+			.attr('font-size', 20)
 			.attr("transform", "translate(" + margin.left + " ," + (margin.top + 27*i) + ")")
 			.text(textFields[i][1] + textFields[i][0])
 		}
@@ -187,10 +188,97 @@ function showPanel(selection) {
 }
 
 function attendanceChart(selection) {
+	var attendance = selection.attendance
+	var x = d3.scaleLinear()
+		.rangeRound([chart_margin.left, chart_margin.left + chart_width]);
+	var y = d3.scaleLinear()
+		.rangeRound([(height-chart_margin.bottom) , (height-chart_margin.bottom-chart_height)]);
+	var line = d3.line()
+		.x(function(d) { return x(d.year); })
+		.y(function(d) { return y(d.att); });
 
+	x.domain(d3.extent(attendance, function(d) { return d.year; }));
+	y.domain([0, d3.max(attendance, function(d) { return d.att; })]);
+
+	//Set axes
+	g2.append('g')
+		.attr('class', 'axis axis--x')
+		.attr('transform', 'translate(' + 0 + ',' + (height-chart_margin.bottom) + ')')
+		.call(d3.axisBottom(x).ticks(6).tickFormat(d3.format("d")));
+
+	g2.append('g')
+		.attr('class', 'axis axis--y')
+		.attr('transform', 'translate(' + chart_margin.left + ',' + 0 + ')')
+		.call(d3.axisLeft(y).ticks(10));
+	 
+	
+	//Label axes
+	g2.append('text')
+		.attr('transform', 'translate(' + (chart_width/2 + chart_margin.left) + ',' + (height - chart_margin.bottom/5) + ')')
+		.attr('text-anchor', 'middle')
+		.text('Year')
+		.style('font-size', 14)
+	
+	g2.append('text')
+		.attr('transform', "translate(" + 10 + "," + (height * 0.7) + ")" + "rotate(-90)")
+		.attr('text-anchor', 'middle')
+		.text('Attendance Rate (%)')
+		.style('font-size', 14)
+
+  	g2.append("path")
+      	.datum(attendance)
+      	.attr("fill", "none")
+      	.attr("stroke", "steelblue")
+      	.attr("stroke-linejoin", "round")
+      	.attr("stroke-linecap", "round")
+      	.attr("stroke-width", 2)
+      	.attr("d", line);
 }
 
 function safetyChart(selection) {
+	var safety = selection.safety
+	var x = d3.scaleLinear()
+		.rangeRound([width/2, chart_margin.left + chart_width]);
+	var y = d3.scaleBand()
+		.rangeRound([(height-chart_margin.bottom) , (height-chart_margin.bottom-chart_height)]);
+	var line = d3.line()
+		.x(function(d) { return x(d.year); })
+		.y(function(d) { return y(d.safety); });
 
+	x.domain(d3.extent(safety, function(d) { return d.year; }));
+	y.domain([0, 4]);
+
+	//Set axes
+	g2.append('g')
+		.attr('class', 'axis axis--x')
+		.attr('transform', 'translate(' + (width/2)+ ',' + (height-chart_margin.bottom) + ')')
+		.call(d3.axisBottom(x).ticks(2).tickFormat(d3.format("d")));
+
+	g2.append('g')
+		.attr('class', 'axis axis--y')
+		.attr('transform', 'translate(' + chart_margin.left + ',' + 0 + ')')
+		.call(d3.axisLeft(y).ticks(5));
+	
+	//Label axes
+	g2.append('text')
+		.attr('transform', 'translate(' + (chart_width/2 + chart_margin.left) + ',' + (height - chart_margin.bottom/5) + ')')
+		.attr('text-anchor', 'middle')
+		.text('Year')
+		.style('font-size', 14)
+	
+	g2.append('text')
+		.attr('transform', "translate(" + 10 + "," + (height * 0.7) + ")" + "rotate(-90)")
+		.attr('text-anchor', 'middle')
+		.text('Attendance Rate (%)')
+		.style('font-size', 14)
+
+  	g2.append("path")
+      	.datum(safety)
+      	.attr("fill", "none")
+      	.attr("stroke", "steelblue")
+      	.attr("stroke-linejoin", "round")
+      	.attr("stroke-linecap", "round")
+      	.attr("stroke-width", 2)
+      	.attr("d", line);
 }
 	
