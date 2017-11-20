@@ -32,11 +32,11 @@ ul,
 li {
     font: 400 16px/24px Lato, sans-serif;
     margin: 0 0 .5em;
-    color: #666;
+    color: black;
 }
 
 
-.circ { 
+.circ {
     stroke-width: 0;
     fill: #1696d2;
     opacity: 0.6;
@@ -44,16 +44,22 @@ li {
  }
 
 .line {
-  stroke: black;
-  stroke-width: 3;
-  fill: none;
+    stroke: black;
+    stroke-width: 3;
+    fill: none;
     opacity: 0.7;
     stroke-linecap: round;
-}
+}   
+
 .year_note {
     font: Lato;
     font-size: 12px;
     fill: #5c5859;
+}
+
+#opening {
+    padding-top: 20px;
+    padding-bottom: 10px;
 }
 
 #search {
@@ -62,12 +68,15 @@ li {
 }
 
 #map {
-    width: 450px;
-    height: 700px;
+    width: auto;
+    height: auto;
 }
 
 #info-panel {
-    background: #13b4ff;
-    width: 450px;
+    border-color: #dcdad6;
+    border-style: solid;
+    border-width: 2px;
+    width: 550px;
     height: 700px;
 }
+
