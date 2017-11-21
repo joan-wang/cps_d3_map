@@ -72,7 +72,7 @@ d3.json("data/locations_updated.geojson", function(error, collection) {
 			d.safety = d.properties.safety
 		});
 		schools = collection;
-		dummy_school = schools.features[3]; 
+		dummy_school = schools.features[4]; 
 		// TO DO: showPanel should be triggered when a school is selected
 		// Using dummy data for now
 
@@ -168,6 +168,7 @@ function loadMap() {
 		.attr('stroke-opacity', .6)
 		.attr('fill', 'none');
 	
+
 	// Ensure that data moves with the map
 	map.on("viewreset", reset);
   	reset();
@@ -199,7 +200,7 @@ function loadMap() {
 function showPanel(selection) {
 	// Fill in text info about selected school
 	textFields = [[selection.shortName, 'School name: '], 
-		[selection.commArea, 'Neighborhood: '], 
+		[selection.commArea, 'Community Area: '], 
 		[selection.safePassage, "Safe Passage School: "],
 		[selection.enrollment, 'Student enrollment: '],
 		[selection.numCrimes, 'Number of crimes within 1 mile in 2016: ']]
@@ -221,6 +222,21 @@ function showPanel(selection) {
 		.attr("transform", "translate(" + margin.left + " ," + (height - 15) + ")")
 		.text('Chicago Public Schools Progress Reports and Attendance Rates ')
 	
+	// Legend for two charts
+	g2a.append('line')
+		.attr('class', 'grayline')
+		.attr('transform', "translate(" + (margin.left + 60) + "," + (height * 1/3 + 25) + ")")
+		.attr('x1', 60)
+		.attr('x2', 100)
+		.attr('stroke-width', 2.5)
+
+	g2a.append('text')
+		.attr('font-size', 14)
+		.attr('transform', "translate(" + (width/2 + 50) + "," + (height * 1/3 + 30) + ")")
+		.attr('text-anchor', 'middle')
+		.text(' = Other schools in Community Area')
+	
+
 	attendanceChart(selection);
 	safetyChart(selection);
 }
@@ -258,7 +274,7 @@ function attendanceChart(selection) {
 		.style('font-size', 14)
 	
 	g2a.append('text')
-		.attr('transform', "translate(" + 15 + "," + (height * 0.63) + ")" + "rotate(-90)")
+		.attr('transform', "translate(" + 20 + "," + (height * 0.63) + ")" + "rotate(-90)")
 		.attr('text-anchor', 'middle')
 		.text('Attendance Rate (%)')
 		.style('font-size', 14)
@@ -268,16 +284,27 @@ function attendanceChart(selection) {
 		.attr('transform', "translate(" + (chart_width/2 + chart_margin.left) + "," + (height * 1/3) + ")")
 		.attr('text-anchor', 'middle')
 		.text('Historical Attendace Rate')
-		.style('font-size', 16)
+		.style('font-size', 18)
 
-  	g2a.append("path")
+	// Draw lines
+  	school_att = g2a.selectAll('.school_att')
+      	.data(schools.features.filter(function (d) {
+      		return d.commArea == selection.commArea;
+      	}))
+      	.enter().append('g')
+      		.attr('class', 'school_att')
+    
+    school_att.append('path')
+      	.attr("fill", "none")
+      	.attr('class', 'grayline')
+      	.attr('d', function(d) { console.log(d.attendance); return line(d.attendance); });
+
+    g2a.append('path')
+    	.attr('class', 'specialline')
       	.datum(attendance)
       	.attr("fill", "none")
-      	.attr("stroke", "steelblue")
-      	.attr("stroke-linejoin", "round")
-      	.attr("stroke-linecap", "round")
-      	.attr("stroke-width", 2)
       	.attr("d", line);
+
 }
 
 function safetyChart(selection) {
@@ -312,7 +339,7 @@ function safetyChart(selection) {
 		.style('font-size', 14)
 	
 	g2b.append('text')
-		.attr('transform', "translate(" + 20 + "," + (height * 0.63) + ")" + "rotate(-90)")
+		.attr('transform', "translate(" + 25 + "," + (height * 0.63) + ")" + "rotate(-90)")
 		.attr('text-anchor', 'middle')
 		.text('School Survey Safety Rating')
 		.style('font-size', 14)
@@ -322,15 +349,25 @@ function safetyChart(selection) {
 		.attr('transform', "translate(" + (chart_width*1.5 + chart_margin.left*2) + "," + (height * 1/3) + ")")
 		.attr('text-anchor', 'middle')
 		.text('Change in Safety Rating')
-		.style('font-size', 16)
+		.style('font-size', 18)
 
-	g2b.append("path")
+	// Draw lines
+    school_att = g2b.selectAll('.school_safety')
+      	.data(schools.features.filter(function (d) {
+      		return d.commArea == selection.commArea;
+      	}))
+      	.enter().append('g')
+      		.attr('class', 'school_safety')
+
+    school_att.append('path')
+      	.attr("fill", "none")
+      	.attr('class', 'grayline')
+      	.attr('d', function(d) { console.log(d.safety); return line(d.safety); });
+
+    g2b.append('path')
+    	.attr('class', 'specialline')
       	.datum(safety)
       	.attr("fill", "none")
-      	.attr("stroke", "steelblue")
-      	.attr("stroke-linejoin", "round")
-      	.attr("stroke-linecap", "round")
-      	.attr("stroke-width", 2)
       	.attr("d", line);
 }
 
