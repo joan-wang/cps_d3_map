@@ -53,6 +53,9 @@ for idx, feature in enumerate(schools['features']):
 
     if school_id in df.index:
         school_row = df.loc[school_id]
+        feature['properties']['short_name'] = feature['properties']['short_name'].title()
+        feature['properties']['commarea'] = feature['properties']['commarea'].title()
+        feature['properties']['longName'] = school_row['Long_Name']
         
         # Safe passage routes indicator
         if school_id in sp_schools:

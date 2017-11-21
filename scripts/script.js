@@ -62,6 +62,7 @@ d3.json("data/locations_updated.geojson", function(error, collection) {
 		collection.features.forEach(function(d) {
 			d.LatLng = new L.LatLng(d.geometry.coordinates[1], d.geometry.coordinates[0])
 			d.shortName = d.properties.short_name
+			d.longName = d.properties.longName
 			d.numCrimes = d.properties.numCrimes
 			d.commArea = d.properties.commarea
 			d.safetyRating = d.properties.safetyRating
@@ -71,7 +72,7 @@ d3.json("data/locations_updated.geojson", function(error, collection) {
 			d.safety = d.properties.safety
 		});
 		schools = collection;
-		dummy_school = schools.features[0]; 
+		dummy_school = schools.features[3]; 
 		// TO DO: showPanel should be triggered when a school is selected
 		// Using dummy data for now
 
@@ -89,7 +90,6 @@ d3.json("data/Chicago Public Schools - Safe Passage Routes SY1617.geojson", func
     	console.log(error);
   	} else {
   		routes = collection;
-  		console.log(routes)
   		if (!--remaining) loadMap(), startAuto(), showPanel(dummy_school);
   	};
 });
@@ -234,9 +234,9 @@ function attendanceChart(selection) {
 	var line = d3.line()
 		.x(function(d) { return x(d.year); })
 		.y(function(d) { return y(d.att); });
-
+	console.log(selection.attendance)
 	x.domain(d3.extent(attendance, function(d) { return d.year; }));
-	y.domain([0, d3.max(attendance, function(d) { return d.att; })]);
+	y.domain([0, 100]);
 
 	//Set axes
 	g2a.append('g')
