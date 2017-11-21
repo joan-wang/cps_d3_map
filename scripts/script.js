@@ -1,6 +1,11 @@
 // Autocomplete options
 var keys = [];
 
+// Define tooltip
+var div = d3.select('body').append('div')
+	.attr('class', 'tooltip')
+	.style('opacity', 0);
+
 // TO DO: Fix margin convention
 // Set spacing for info panel
 var margin = {top: 20, right: 20, bottom: 10, left: 20}
@@ -19,7 +24,7 @@ var schoolIcon = L.icon({
 	});
 
 // Create map object from Leaflet
-var map = new L.Map("map", {center: [41.8256, -87.645], zoom: 11})
+var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
     .addLayer(new L.TileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 	subdomains: 'abcd',
@@ -124,7 +129,21 @@ function loadMap() {
 		.attr('class', 'school-location')
 		.attr('fill', '#ffd800')
 		.attr('fill-opacity', .6)
-		.attr('r', 5);
+		.attr('r', 5)
+		.on("mouseover", function(d) {
+			console.log(d.shortName);
+			div.transition()
+  				.duration(200)
+  				.style('opacity', .9);
+  			div.html(d.shortName)
+  				.style("left", (d3.event.pageX) + "px")		
+            	.style("top", (d3.event.pageY - 28) + "px");
+		})
+		.on('mouseout', function(d) {
+			div.transition()
+				.duration(500)
+				.style('opacity', 0);
+		});
 
 	// Option 2: Use school house as icons. TO DO: change colors
 	/*var feature_schools = g.selectAll("myPoint")
@@ -171,7 +190,7 @@ function loadMap() {
 			});
 		//Plot routes as line paths
 		feature_routes.attr("d", path);
-	}
+	} 
 }
 
 function showPanel(selection) {
@@ -311,4 +330,7 @@ function safetyChart(selection) {
       	.attr("stroke-width", 2)
       	.attr("d", line);
 }
-	
+
+
+
+
