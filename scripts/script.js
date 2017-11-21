@@ -54,7 +54,7 @@ var g2b = svg2.append("g")
 // Load multiple data files in parallel
 var schools, passage, remaining = 2;
 
-d3.json("data/Chicago Public Schools - School Locations SY1617.geojson", function(error, collection) {
+d3.json("data/locations_updated.geojson", function(error, collection) {
 	if (error) {
 	console.log(error);
 	} else {
@@ -62,14 +62,13 @@ d3.json("data/Chicago Public Schools - School Locations SY1617.geojson", functio
 		collection.features.forEach(function(d) {
 			d.LatLng = new L.LatLng(d.geometry.coordinates[1], d.geometry.coordinates[0])
 			d.shortName = d.properties.short_name
-			d.numCrimes = "TBD"
+			d.numCrimes = d.properties.numCrimes
 			d.commArea = d.properties.commarea
-			d.safetyRating = "TBD"
-			d.enrollment = "TBD"
-			d.safePassage = "TBD"
-			d.attendance = [{'year': 2012, 'att': 90}, {'year': 2013, 'att': 92}, {'year': 2014, 'att': 94}, {'year': 2015, 'att': 96}, {'year': 2016, 'att': 98}, {'year': 2017, 'att': 100}]
-			d.safety = [{'year': 2016, 'safety': 1}, {'year': 2017, 'safety': 5}]
-			// TO DO: remove this dummy data after updating geojson to include this info
+			d.safetyRating = d.properties.safetyRating
+			d.enrollment = d.properties.enrollment
+			d.safePassage = d.properties.safePassage
+			d.attendance = d.properties.attendance
+			d.safety = d.properties.safety
 		});
 		schools = collection;
 		dummy_school = schools.features[0]; 
@@ -132,6 +131,7 @@ function loadMap() {
 		.attr('r', 5)
 		.on("mouseover", function(d) {
 			console.log(d.shortName);
+			d3.select(this).style("cursor", "pointer");
 			div.transition()
   				.duration(200)
   				.style('opacity', .9);
@@ -143,6 +143,9 @@ function loadMap() {
 			div.transition()
 				.duration(500)
 				.style('opacity', 0);
+		})
+		.on('click', function(d) {
+			console.log('clicked ' + d.shortName)
 		});
 
 	// Option 2: Use school house as icons. TO DO: change colors
