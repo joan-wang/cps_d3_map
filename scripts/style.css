@@ -73,6 +73,10 @@ li {
     fill: #5c5859;
 }
 
+.school_location.active {
+    fill: red;
+}
+
 div.tooltip {   
     position: absolute;         
     text-align: center;         

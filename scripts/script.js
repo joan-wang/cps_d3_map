@@ -1,5 +1,6 @@
 // Autocomplete options
-var keys = [];
+var keys = [],
+	active = d3.select(null);
 
 // Define tooltip
 var div = d3.select('body').append('div')
@@ -80,7 +81,7 @@ d3.json("data/locations_updated.geojson", function(error, collection) {
   		for (var i = 0; i < schools.features.length; i++) { 
 		    keys.push({"short_name":schools.features[i].properties.short_name});
 		}
-  		if (!--remaining) loadMap(), startAuto(), showPanel(dummy_school);
+  		if (!--remaining) loadMap(), startAuto();
   		// TO DO: showPanel should be triggered when a school is selected
   	};
 });
@@ -90,7 +91,7 @@ d3.json("data/Chicago Public Schools - Safe Passage Routes SY1617.geojson", func
     	console.log(error);
   	} else {
   		routes = collection;
-  		if (!--remaining) loadMap(), startAuto(), showPanel(dummy_school);
+  		if (!--remaining) loadMap(), startAuto();
   	};
 });
 
@@ -120,7 +121,7 @@ function loadMap() {
 		var point = map.latLngToLayerPoint(new L.LatLng(y, x));
 		this.stream.point(point.x, point.y);
 	}
-
+	
 	// Option 1: Use circles as icons
 	var feature_schools = g1.selectAll("circle")
 		.data(schools.features)
@@ -144,27 +145,25 @@ function loadMap() {
 				.duration(500)
 				.style('opacity', 0);
 		})
-		.on('click', function(d) {
-			console.log('clicked ' + d.shortName)
-		});
-
+		.on('click', clicked)
+	/*
 	// Option 2: Use school house as icons. TO DO: change colors
-	/*var feature_schools = g.selectAll("myPoint")
+	var feature_schools = g1.selectAll("myPoint")
 		.data(schools.features)
 		.enter().append("image")
-		.attr('xlink:href', 'school_icon.png')
+		.attr('xlink:href', 'data/school_icon.png')
 		.attr('width', 20)
 		.attr('height', 20)
 		.attr('color', '#ffd800')
 		.style('opacity', .5)
-		.style('color', 'ffd800');*/
-	
+		.style('color', 'ffd800');
+	*/
 	var feature_routes = g1.selectAll("path")
 		.data(routes.features)
 		.enter().append("path")
 		.attr('class', 'route-location')
 		.attr('stroke', '#1696d2')
-		.attr('stroke-width', 2)
+		.attr('stroke-width', 3)
 		.attr('stroke-opacity', .6)
 		.attr('fill', 'none');
 	
@@ -173,7 +172,17 @@ function loadMap() {
 	map.on("viewreset", reset);
   	reset();
 
+  	function clicked(d) {
+  		hidePanel();
+  		active.classed('active', false);
+  		active = d3.select(this).classed('active', true);
+  		showPanel(active.data()[0]);
+  	}
+
 	function reset() {
+		active.classed("active", false);
+  		active = d3.select(null);
+
 		// Compute bounding box
 	    var bounds = path.bounds(schools),
 	        topLeft = bounds[0],
@@ -195,6 +204,10 @@ function loadMap() {
 		//Plot routes as line paths
 		feature_routes.attr("d", path);
 	} 
+}
+
+function hidePanel() {
+	d3.select("#info-panel").selectAll("text, path").remove();
 }
 
 function showPanel(selection) {
@@ -250,7 +263,6 @@ function attendanceChart(selection) {
 	var line = d3.line()
 		.x(function(d) { return x(d.year); })
 		.y(function(d) { return y(d.att); });
-	console.log(selection.attendance)
 	x.domain(d3.extent(attendance, function(d) { return d.year; }));
 	y.domain([0, 100]);
 
@@ -287,6 +299,7 @@ function attendanceChart(selection) {
 		.style('font-size', 18)
 
 	// Draw lines
+	/*
   	school_att = g2a.selectAll('.school_att')
       	.data(schools.features.filter(function (d) {
       		return d.commArea == selection.commArea;
@@ -298,6 +311,15 @@ function attendanceChart(selection) {
       	.attr("fill", "none")
       	.attr('class', 'grayline')
       	.attr('d', function(d) { console.log(d.attendance); return line(d.attendance); });
+	*/
+	g2a.selectAll('path')
+      	.data(schools.features.filter(function (d) {
+      		return d.commArea == selection.commArea;
+      	}))
+      	.enter().append('path')
+      	.attr('d', function(d) { console.log(d.attendance); return line(d.attendance); })
+      	.attr('fill', 'none')
+      	.attr('class', 'grayline');
 
     g2a.append('path')
     	.attr('class', 'specialline')
@@ -316,7 +338,6 @@ function safetyChart(selection) {
 	var line = d3.line()
 		.x(function(d) { return x(d.year); })
 		.y(function(d) { return y(d.safety); });
-	console.log(selection.safety)
 	x.domain(d3.extent(safety, function(d) { return d.year; }));
 	y.domain([0,5]);
 
@@ -352,17 +373,14 @@ function safetyChart(selection) {
 		.style('font-size', 18)
 
 	// Draw lines
-    school_att = g2b.selectAll('.school_safety')
+	g2b.selectAll('path')
       	.data(schools.features.filter(function (d) {
       		return d.commArea == selection.commArea;
       	}))
-      	.enter().append('g')
-      		.attr('class', 'school_safety')
-
-    school_att.append('path')
-      	.attr("fill", "none")
-      	.attr('class', 'grayline')
-      	.attr('d', function(d) { console.log(d.safety); return line(d.safety); });
+      	.enter().append('path')
+      	.attr('d', function(d) { console.log(d.attendance); return line(d.safety); })
+      	.attr('fill', 'none')
+      	.attr('class', 'grayline');
 
     g2b.append('path')
     	.attr('class', 'specialline')
