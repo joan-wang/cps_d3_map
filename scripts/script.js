@@ -1,6 +1,5 @@
-// Autocomplete options
-var keys = [],
-	active = d3.select(null);
+
+var active = d3.select(null);
 
 // Define tooltip
 var div = d3.select('body').append('div')
@@ -74,7 +73,7 @@ d3.json("data/locations_updated.geojson", function(error, collection) {
 		});
 		schools = collection;
 		
-  		if (!--remaining) loadMap(), startAuto();
+  		if (!--remaining) loadMap(), startAuto("Search States - Start typing here");
   		// TO DO: showPanel should be triggered when a school is selected
   	};
 });
@@ -84,15 +83,15 @@ d3.json("data/Chicago Public Schools - Safe Passage Routes SY1617.geojson", func
     	console.log(error);
   	} else {
   		routes = collection;
-  		if (!--remaining) loadMap(), startAuto();
+  		if (!--remaining) loadMap(), startAuto("Search States - Start typing here");
   	};
 });
 
-function startAuto() {
-	var mc = autocomplete(document.getElementById('search'))
+function startAuto(placeholder) {
+	mc = autocomplete(document.getElementById('search'))
                 .keys(schools.features)
                 .dataField("shortName")
-                .placeHolder("Search States - Start typing here")
+                .placeHolder(placeholder)
                 .width(960)
                 .height(500)
                 .onSelected(onSelect)
@@ -181,15 +180,14 @@ function loadMap() {
 }
 
 function onSelect(d) {
+	// Update panel by hiding old stuff and adding new stuff
 	hidePanel();
 	active.classed('active', false);
-	active = d3.select('circle')
-		.filter(function(e) {return e.shortName = d.shortName})
+	// Select the circle corresponding to selected school
+	active = d3.selectAll('.school-location')
+		.filter(function(e) {return e.shortName == d.shortName})
 		.classed('active', true);
 	showPanel(active.data()[0]);
-	/*console.log(active.data()[0].shortName);
-
-	console.log(active.data()[0].LatLng);*/
 
 	// Zoom to selected school on the map
 	map.setView(L.latLng(active.data()[0].LatLng), 14);
@@ -205,16 +203,19 @@ function clicked(d) {
 
 	// Zoom to selected school on the map
 	map.setView(L.latLng(active.data()[0].LatLng), 14);
+
+	//startAuto(active.data()[0].shortName)
+	console.log(mc)
 }
 
 
 function hidePanel() {
 	d3.select("#info-panel").selectAll("text, path").remove();
-	d3.select('#info-panel').attr('class', 'inactive')
+	d3.select('#info-panel').classed('active', false)
 }
 
 function showPanel(selection) {
-	d3.select('#info-panel').attr('class', 'active')
+	d3.select('#info-panel').classed('active', true)
 
 	// Fill in text info about selected school
 	textFields = [[selection.shortName, 'School name: '], 

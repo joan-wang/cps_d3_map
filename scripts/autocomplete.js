@@ -160,7 +160,7 @@ function autocomplete(parent) {
 
             function row_onClick(d) {
                 hideDropDown();
-                input.node().value= d[_dataField];
+                input.node().value= '';
                 _selectedFunction(d);
             }
 
