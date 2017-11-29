@@ -38,7 +38,7 @@ var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
 var svg1 = d3.select(map.getPanes().overlayPane).append("svg");
 var g1 = svg1.append("g").attr("class", "leaflet-zoom-hide");
 
-// Info panel info is svg2
+// Info panel is svg2
 var svg2 = d3.select('#info-panel')
 	.append('svg')
 	.attr("preserveAspectRatio", "xMinYMin meet")
@@ -131,7 +131,6 @@ function loadMap() {
 		.attr('fill-opacity', .6)
 		.attr('r', 5)
 		.on("mouseover", function(d) {
-			console.log(d.shortName);
 			d3.select(this).style("cursor", "pointer");
 			div.transition()
   				.duration(200)
@@ -173,10 +172,33 @@ function loadMap() {
   	reset();
 
   	function clicked(d) {
+  		// Update panel by hiding old stuff and adding new stuff
   		hidePanel();
   		active.classed('active', false);
   		active = d3.select(this).classed('active', true);
   		showPanel(active.data()[0]);
+
+  		// Zoom to selected school on the map
+
+  		// FIX THIS ZOOM
+      	/*g1.transition()
+      		.duration(750)
+      		.attr('transform', 'translate( 400, 300)')*/
+
+      	// Compute bounding box
+      	map.setView(L.latLng(active.data()[0].LatLng), 14);
+
+	    var bounds = path.bounds(schools),
+	        topLeft = bounds[0],
+	        bottomRight = bounds[1];
+	    
+	    svg1.attr("width", bottomRight[0] - topLeft[0])
+		    .attr("height", bottomRight[1] - topLeft[1])
+		    .style("left", topLeft[0] + "px")
+		    .style("top", topLeft[1] + "px");
+
+	    g1.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+		
   	}
 
 	function reset() {
@@ -187,7 +209,7 @@ function loadMap() {
 	    var bounds = path.bounds(schools),
 	        topLeft = bounds[0],
 	        bottomRight = bounds[1];
-	    
+	    console.log(bounds)
 	    svg1.attr("width", bottomRight[0] - topLeft[0])
 		    .attr("height", bottomRight[1] - topLeft[1])
 		    .style("left", topLeft[0] + "px")
@@ -208,9 +230,12 @@ function loadMap() {
 
 function hidePanel() {
 	d3.select("#info-panel").selectAll("text, path").remove();
+	d3.select('#info-panel').attr('class', 'inactive')
 }
 
 function showPanel(selection) {
+	d3.select('#info-panel').attr('class', 'active')
+
 	// Fill in text info about selected school
 	textFields = [[selection.shortName, 'School name: '], 
 		[selection.commArea, 'Community Area: '], 
@@ -317,7 +342,7 @@ function attendanceChart(selection) {
       		return d.commArea == selection.commArea;
       	}))
       	.enter().append('path')
-      	.attr('d', function(d) { console.log(d.attendance); return line(d.attendance); })
+      	.attr('d', function(d) { return line(d.attendance); })
       	.attr('fill', 'none')
       	.attr('class', 'grayline');
 
@@ -378,7 +403,7 @@ function safetyChart(selection) {
       		return d.commArea == selection.commArea;
       	}))
       	.enter().append('path')
-      	.attr('d', function(d) { console.log(d.attendance); return line(d.safety); })
+      	.attr('d', function(d) { return line(d.safety); })
       	.attr('fill', 'none')
       	.attr('class', 'grayline');
 

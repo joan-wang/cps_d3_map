@@ -113,3 +113,11 @@ div.tooltip {
     height: 700px;
 }
 
+#info-panel.active {
+    opacity: 1;
+}
+
+#info-panel.inactive {
+    opacity: 0;
+}
+
