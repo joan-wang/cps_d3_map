@@ -73,14 +73,7 @@ d3.json("data/locations_updated.geojson", function(error, collection) {
 			d.safety = d.properties.safety
 		});
 		schools = collection;
-		dummy_school = schools.features[4]; 
-		// TO DO: showPanel should be triggered when a school is selected
-		// Using dummy data for now
-
-  		// Add school names to keys variable for autocomplete
-  		for (var i = 0; i < schools.features.length; i++) { 
-		    keys.push({"short_name":schools.features[i].properties.short_name});
-		}
+		
   		if (!--remaining) loadMap(), startAuto();
   		// TO DO: showPanel should be triggered when a school is selected
   	};
@@ -95,14 +88,10 @@ d3.json("data/Chicago Public Schools - Safe Passage Routes SY1617.geojson", func
   	};
 });
 
-function onSelect(d) {
-        alert(d.School);
-    }
-
 function startAuto() {
 	var mc = autocomplete(document.getElementById('search'))
-                .keys(keys)
-                .dataField("short_name")
+                .keys(schools.features)
+                .dataField("shortName")
                 .placeHolder("Search States - Start typing here")
                 .width(960)
                 .height(500)
@@ -111,8 +100,6 @@ function startAuto() {
 }
 
 function loadMap() {
-	console.log("I JUST RESET THE MAP")
-
 	// Projection function with Leaflet for routes
 	var transform = d3.geoTransform({point: projectPoint});
 	var path = d3.geoPath().projection(transform);
@@ -165,51 +152,16 @@ function loadMap() {
 		.attr('stroke-width', 3)
 		.attr('stroke-opacity', .6)
 		.attr('fill', 'none');
-	
 
 	// Ensure that data moves with the map
 	map.on("viewreset", reset);
   	reset();
 
-  	function clicked(d) {
-  		// Update panel by hiding old stuff and adding new stuff
-  		hidePanel();
-  		active.classed('active', false);
-  		active = d3.select(this).classed('active', true);
-  		showPanel(active.data()[0]);
-
-  		// Zoom to selected school on the map
-
-  		// FIX THIS ZOOM
-      	/*g1.transition()
-      		.duration(750)
-      		.attr('transform', 'translate( 400, 300)')*/
-
-      	// Compute bounding box
-      	map.setView(L.latLng(active.data()[0].LatLng), 14);
-
-	    var bounds = path.bounds(schools),
-	        topLeft = bounds[0],
-	        bottomRight = bounds[1];
-	    
-	    svg1.attr("width", bottomRight[0] - topLeft[0])
-		    .attr("height", bottomRight[1] - topLeft[1])
-		    .style("left", topLeft[0] + "px")
-		    .style("top", topLeft[1] + "px");
-
-	    g1.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
-		
-  	}
-
 	function reset() {
-		active.classed("active", false);
-  		active = d3.select(null);
-
 		// Compute bounding box
 	    var bounds = path.bounds(schools),
 	        topLeft = bounds[0],
 	        bottomRight = bounds[1];
-	    console.log(bounds)
 	    svg1.attr("width", bottomRight[0] - topLeft[0])
 		    .attr("height", bottomRight[1] - topLeft[1])
 		    .style("left", topLeft[0] + "px")
@@ -227,6 +179,34 @@ function loadMap() {
 		feature_routes.attr("d", path);
 	} 
 }
+
+function onSelect(d) {
+	hidePanel();
+	active.classed('active', false);
+	active = d3.select('circle')
+		.filter(function(e) {return e.shortName = d.shortName})
+		.classed('active', true);
+	showPanel(active.data()[0]);
+	/*console.log(active.data()[0].shortName);
+
+	console.log(active.data()[0].LatLng);*/
+
+	// Zoom to selected school on the map
+	map.setView(L.latLng(active.data()[0].LatLng), 14);
+}
+
+function clicked(d) {
+	// Update panel by hiding old stuff and adding new stuff
+	hidePanel();
+	active.classed('active', false);
+	active = d3.select(this)
+		.classed('active', true);
+	showPanel(active.data()[0]);
+
+	// Zoom to selected school on the map
+	map.setView(L.latLng(active.data()[0].LatLng), 14);
+}
+
 
 function hidePanel() {
 	d3.select("#info-panel").selectAll("text, path").remove();

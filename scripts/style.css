@@ -73,8 +73,10 @@ li {
     fill: #5c5859;
 }
 
-.school_location.active {
-    fill: red;
+.school-location.active {
+    fill: blue;
+    r: 8;
+    fill-opacity: 1;
 }
 
 div.tooltip {   

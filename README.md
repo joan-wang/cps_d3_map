@@ -5,4 +5,3 @@ Sources referenced:
 - http://www.brightpointinc.com/clients/brightpointinc.com/library/autocomplete/  
 - https://bl.ocks.org/mbostock/3883245  
 - http://bl.ocks.org/d3noob/a22c42db65eb00d4e369  
-- https://bl.ocks.org/mbostock/2206590
