@@ -36,13 +36,6 @@ li {
 }
 
 
-.circ {
-    stroke-width: 0;
-    fill: #1696d2;
-    opacity: 0.6;
-    stroke-linecap: round;
- }
-
 .line {
     stroke: black;
     stroke-width: 3;
@@ -75,7 +68,7 @@ li {
 
 .school-location.active {
     fill: blue;
-    r: 8;
+    r: 12;
     fill-opacity: 1;
 }
 

@@ -52,7 +52,7 @@ var g2b = svg2.append("g")
 
 
 // Load multiple data files in parallel
-var schools, passage, remaining = 2;
+var schools, passage, crimes, remaining = 3;
 
 d3.json("data/locations_updated.geojson", function(error, collection) {
 	if (error) {
@@ -86,6 +86,24 @@ d3.json("data/Chicago Public Schools - Safe Passage Routes SY1617.geojson", func
   		if (!--remaining) loadMap(), startAuto("Search States - Start typing here");
   	};
 });
+
+function rowConverter(d) {
+			return { 
+				id: +d.ID,
+				lat: +d.Latitude,
+				lon: +d.Longitude,
+			};
+		}
+
+d3.csv('data/crimes_2016.csv', rowConverter, function(error, data) {
+	if (error) { 
+    	console.log(error);
+  	} else {
+  		crimes = data;
+  		if (!--remaining) loadMap(), startAuto("Search States - Start typing here");
+  	};
+});
+
 
 function startAuto(placeholder) {
 	mc = autocomplete(document.getElementById('search'))
@@ -130,10 +148,10 @@ function loadMap() {
 				.duration(500)
 				.style('opacity', 0);
 		})
-		.on('click', clicked)
-	/*
+		.on('click', clicked)	
+
 	// Option 2: Use school house as icons. TO DO: change colors
-	var feature_schools = g1.selectAll("myPoint")
+	/*var feature_schools = g1.selectAll("myPoint")
 		.data(schools.features)
 		.enter().append("image")
 		.attr('xlink:href', 'data/school_icon.png')
@@ -141,8 +159,8 @@ function loadMap() {
 		.attr('height', 20)
 		.attr('color', '#ffd800')
 		.style('opacity', .5)
-		.style('color', 'ffd800');
-	*/
+		.style('color', 'ffd800');*/
+	
 	var feature_routes = g1.selectAll("path")
 		.data(routes.features)
 		.enter().append("path")
@@ -190,7 +208,7 @@ function onSelect(d) {
 	showPanel(active.data()[0]);
 
 	// Zoom to selected school on the map
-	map.setView(L.latLng(active.data()[0].LatLng), 14);
+	map.setView(L.latLng(active.data()[0].LatLng), 13);
 }
 
 function clicked(d) {
@@ -202,10 +220,7 @@ function clicked(d) {
 	showPanel(active.data()[0]);
 
 	// Zoom to selected school on the map
-	map.setView(L.latLng(active.data()[0].LatLng), 14);
-
-	//startAuto(active.data()[0].shortName)
-	console.log(mc)
+	map.setView(L.latLng(active.data()[0].LatLng), 13);
 }
 
 
@@ -216,6 +231,21 @@ function hidePanel() {
 
 function showPanel(selection) {
 	d3.select('#info-panel').classed('active', true)
+
+	// Exit button
+	var exit = g2a.append('image')
+		.attr('xlink:href', 'data/exit.png')
+		.attr('width', 20)
+		.attr('height', 20)
+		.attr('transform', 'translate(' + (width-20) + " ," + 5 + ")")
+		.on('click', function(d) {
+			hidePanel(); 
+			active.classed('active', false);
+			map.setView(L.latLng(41.8256, -87.62), 11);
+		})
+		.on("mouseover", function(d) {
+			d3.select(this).style("cursor", "pointer");
+		})
 
 	// Fill in text info about selected school
 	textFields = [[selection.shortName, 'School name: '], 
@@ -305,19 +335,6 @@ function attendanceChart(selection) {
 		.style('font-size', 18)
 
 	// Draw lines
-	/*
-  	school_att = g2a.selectAll('.school_att')
-      	.data(schools.features.filter(function (d) {
-      		return d.commArea == selection.commArea;
-      	}))
-      	.enter().append('g')
-      		.attr('class', 'school_att')
-    
-    school_att.append('path')
-      	.attr("fill", "none")
-      	.attr('class', 'grayline')
-      	.attr('d', function(d) { console.log(d.attendance); return line(d.attendance); });
-	*/
 	g2a.selectAll('path')
       	.data(schools.features.filter(function (d) {
       		return d.commArea == selection.commArea;
