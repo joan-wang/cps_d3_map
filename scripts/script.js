@@ -135,7 +135,8 @@ function loadMap() {
 		.attr('fill-opacity', .6)
 		.attr('r', 5)
 		.on("mouseover", function(d) {
-			d3.select(this).style("cursor", "pointer");
+			d3.select(this).classed('active', true)
+				
 			div.transition()
   				.duration(200)
   				.style('opacity', .9);
@@ -144,6 +145,8 @@ function loadMap() {
             	.style("top", (d3.event.pageY - 28) + "px");
 		})
 		.on('mouseout', function(d) {
+			d3.select(this).classed('active', false)
+				
 			div.transition()
 				.duration(500)
 				.style('opacity', 0);

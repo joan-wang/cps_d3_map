@@ -68,7 +68,7 @@ li {
 
 .school-location.active {
     fill: blue;
-    r: 12;
+    cursor: pointer;
     fill-opacity: 1;
 }
 
