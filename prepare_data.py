@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Nov 20 20:46:05 2017
-
 @author: JoanWang
 """
 
@@ -44,6 +43,9 @@ df = df.join(num_crimes[['num_crimes_16']])
 df = df.join(profile[['Student_Count_Total']])
 df = df.join(attendance[['2012', '2013', '2014', '2015', '2016', '2017']])
 
+# Clean up properties of routes json
+for route in routes['features']:
+    route['properties']['school_nam'] = route['properties']['school_nam'].title()
 
 # Make additions to every features in schools json
 to_remove = []
@@ -53,12 +55,13 @@ for idx, feature in enumerate(schools['features']):
 
     if school_id in df.index:
         school_row = df.loc[school_id]
+        feature['properties']['school_id'] = feature['properties']['school_id']
         feature['properties']['short_name'] = feature['properties']['short_name'].title()
         feature['properties']['commarea'] = feature['properties']['commarea'].title()
         feature['properties']['longName'] = school_row['Long_Name']
         
         # Safe passage routes indicator
-        if school_id in sp_schools:
+        if str(school_id) in sp_schools:
             feature['properties']['safePassage'] = "Yes"
         else:
             feature['properties']['safePassage'] = "No"
@@ -88,4 +91,6 @@ schools['features'] = [s for idx, s in enumerate(schools['features']) if idx not
 
 with open('data/locations_updated.geojson', 'w') as f:
     json.dump(schools, f)
-    
+
+with open('data/Chicago Public Schools - Safe Passage Routes SY1617.geojson', 'w') as f:
+    json.dump(routes, f)

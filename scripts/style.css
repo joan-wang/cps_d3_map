@@ -66,8 +66,30 @@ li {
     fill: #5c5859;
 }
 
+.route-location.hovered {
+    stroke: black;
+    cursor: pointer;
+    stroke-width: 4;
+    stroke-opacity: 1;
+}
+
+.route-location.active {
+    stroke: black;
+    cursor: pointer;
+    stroke-width: 4;
+    stroke-opacity: 1;
+}
+
+.school-location.hovered {
+    fill: blue;
+    r: 8;
+    cursor: pointer;
+    fill-opacity: 1;
+}
+
 .school-location.active {
     fill: blue;
+    r: 8;
     cursor: pointer;
     fill-opacity: 1;
 }

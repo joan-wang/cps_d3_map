@@ -1,5 +1,5 @@
-
-var active = d3.select(null);
+var active_school = d3.select(null);
+var active_route = d3.select(null);
 
 // Define tooltip
 var div = d3.select('body').append('div')
@@ -60,6 +60,7 @@ d3.json("data/locations_updated.geojson", function(error, collection) {
 	} else {
 		// Create LatLng property
 		collection.features.forEach(function(d) {
+			d.schoolID = d.properties.school_id
 			d.LatLng = new L.LatLng(d.geometry.coordinates[1], d.geometry.coordinates[0])
 			d.shortName = d.properties.short_name
 			d.longName = d.properties.longName
@@ -72,6 +73,7 @@ d3.json("data/locations_updated.geojson", function(error, collection) {
 			d.safety = d.properties.safety
 		});
 		schools = collection;
+		console.log(schools)
 		
   		if (!--remaining) loadMap(), startAuto("Search States - Start typing here");
   		// TO DO: showPanel should be triggered when a school is selected
@@ -82,7 +84,12 @@ d3.json("data/Chicago Public Schools - Safe Passage Routes SY1617.geojson", func
 	if (error) { 
     	console.log(error);
   	} else {
+  		collection.features.forEach(function(d) {
+			d.schoolID = d.properties.schoolid
+			d.shortName = d.properties.school_nam
+		});
   		routes = collection;
+  		console.log(routes)
   		if (!--remaining) loadMap(), startAuto("Search States - Start typing here");
   	};
 });
@@ -95,11 +102,17 @@ function rowConverter(d) {
 			};
 		}
 
-d3.csv('data/crimes_2016.csv', rowConverter, function(error, data) {
+d3.csv('data/crimes_2016_sample.csv', rowConverter, function(error, collection) {
 	if (error) { 
     	console.log(error);
   	} else {
-  		crimes = data;
+  		collection.forEach(function(d) {
+			d.LatLng = new L.LatLng(d.lat,
+									d.lon)
+		})
+  		crimes = collection;
+  		console.log(crimes)
+
   		if (!--remaining) loadMap(), startAuto("Search States - Start typing here");
   	};
 });
@@ -112,7 +125,7 @@ function startAuto(placeholder) {
                 .placeHolder(placeholder)
                 .width(960)
                 .height(500)
-                .onSelected(onSelect)
+                .onSelected(clicked)
                 .render();
 }
 
@@ -125,7 +138,16 @@ function loadMap() {
 		var point = map.latLngToLayerPoint(new L.LatLng(y, x));
 		this.stream.point(point.x, point.y);
 	}
-	
+
+	var feature_crimes = g1.selectAll("myPoint")
+		.data(crimes)
+		.enter().append("image")
+		.attr('class', 'crime-location')
+		.attr('xlink:href', 'data/red_x_icon.png')
+		.attr('width', 5)
+		.attr('height', 5)
+		.attr('fill', 'red')
+		
 	// Option 1: Use circles as icons
 	var feature_schools = g1.selectAll("circle")
 		.data(schools.features)
@@ -135,8 +157,13 @@ function loadMap() {
 		.attr('fill-opacity', .6)
 		.attr('r', 5)
 		.on("mouseover", function(d) {
-			d3.select(this).classed('active', true)
-				
+			// Make school and corresponding route hover-formatted
+			d3.select(this)
+				.classed('hovered', true);
+			d3.selectAll('.route-location')
+				.filter(function(e) {return e.schoolID == d.schoolID})
+				.classed('hovered', true);
+
 			div.transition()
   				.duration(200)
   				.style('opacity', .9);
@@ -145,7 +172,11 @@ function loadMap() {
             	.style("top", (d3.event.pageY - 28) + "px");
 		})
 		.on('mouseout', function(d) {
-			d3.select(this).classed('active', false)
+			// Remove hover formatting for school and corresponding route
+			d3.select(this).classed('hovered', false);
+			d3.selectAll('.route-location')
+				.filter(function(e) {return e.schoolID == d.schoolID})
+				.classed('hovered', false);
 				
 			div.transition()
 				.duration(500)
@@ -171,8 +202,41 @@ function loadMap() {
 		.attr('stroke', '#1696d2')
 		.attr('stroke-width', 3)
 		.attr('stroke-opacity', .6)
-		.attr('fill', 'none');
+		.attr('fill', 'none')
+		.on("mouseover", function(d) {
+			// Make route and corresponding school hover-formatted
+			d3.select(this)
+				.classed('hovered', true);
+			d3.selectAll('.school-location')
+				.filter(function(e) {return e.schoolID == d.schoolID})
+				.classed('hovered', true);
+				
+			div.transition()
+  				.duration(200)
+  				.style('opacity', .9);
+  			div.html(d.shortName)
+  				.style("left", (d3.event.pageX) + "px")		
+            	.style("top", (d3.event.pageY - 28) + "px");
+		})
+		.on('mouseout', function(d) {
+			// Remove hover formatting for route and corresponding school
+			d3.select(this).classed('hovered', false);
+			d3.selectAll('.school-location')
+				.filter(function(e) {return e.schoolID == d.schoolID})
+				.classed('hovered', false);
 
+			div.transition()
+				.duration(500)
+				.style('opacity', 0);
+		})
+		.on('click', clicked);
+	/*
+	var heat = L.HeatLayer([
+	[41.8256, -87.62, 1], // lat, lng, intensity
+	[41.83, -87.8, 1],
+	[41.2, -87.7, 1],
+	], {radius: 25}).addTo(map);
+	*/
 	// Ensure that data moves with the map
 	map.on("viewreset", reset);
   	reset();
@@ -189,6 +253,13 @@ function loadMap() {
 
 	    g1.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
 		
+		// Plot crimes as points
+		feature_crimes.attr("transform", function(d) { 
+			return "translate("+ 
+				map.latLngToLayerPoint(d.LatLng).x +","+ 
+				map.latLngToLayerPoint(d.LatLng).y +")";
+			});
+
 		// Plot schools as points
 		feature_schools.attr("transform", function(d) { 
 			return "translate("+ 
@@ -200,32 +271,26 @@ function loadMap() {
 	} 
 }
 
-function onSelect(d) {
-	// Update panel by hiding old stuff and adding new stuff
-	hidePanel();
-	active.classed('active', false);
-	// Select the circle corresponding to selected school
-	active = d3.selectAll('.school-location')
-		.filter(function(e) {return e.shortName == d.shortName})
-		.classed('active', true);
-	showPanel(active.data()[0]);
-
-	// Zoom to selected school on the map
-	map.setView(L.latLng(active.data()[0].LatLng), 13);
-}
-
 function clicked(d) {
+	// Make school dot active
+	active_school.classed('active', false);
+	active_school = d3.selectAll('.school-location')
+		.filter(function(e) {return d.schoolID == e.schoolID})
+		.classed('active', true);
+
+	// Make path active
+	active_route.classed('active', false);
+	active_route = d3.selectAll('.route-location')
+		.filter(function(e) {return d.schoolID == e.schoolID})
+		.classed('active', true);
+
 	// Update panel by hiding old stuff and adding new stuff
 	hidePanel();
-	active.classed('active', false);
-	active = d3.select(this)
-		.classed('active', true);
-	showPanel(active.data()[0]);
+	showPanel(active_school.data()[0]);
 
 	// Zoom to selected school on the map
-	map.setView(L.latLng(active.data()[0].LatLng), 13);
+	map.setView(L.latLng(active_school.data()[0].LatLng), 13);
 }
-
 
 function hidePanel() {
 	d3.select("#info-panel").selectAll("text, path").remove();
@@ -243,7 +308,7 @@ function showPanel(selection) {
 		.attr('transform', 'translate(' + (width-20) + " ," + 5 + ")")
 		.on('click', function(d) {
 			hidePanel(); 
-			active.classed('active', false);
+			active_school.classed('active', false);
 			map.setView(L.latLng(41.8256, -87.62), 11);
 		})
 		.on("mouseover", function(d) {
@@ -251,7 +316,7 @@ function showPanel(selection) {
 		})
 
 	// Fill in text info about selected school
-	textFields = [[selection.shortName, 'School name: '], 
+	var textFields = [[selection.shortName, 'School name: '], 
 		[selection.commArea, 'Community Area: '], 
 		[selection.safePassage, "Safe Passage School: "],
 		[selection.enrollment, 'Student enrollment: '],
@@ -414,7 +479,3 @@ function safetyChart(selection) {
       	.attr("fill", "none")
       	.attr("d", line);
 }
-
-
-
-
