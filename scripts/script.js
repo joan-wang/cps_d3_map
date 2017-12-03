@@ -237,6 +237,7 @@ function loadMap() {
 	[41.2, -87.7, 1],
 	], {radius: 25}).addTo(map);
 	*/
+	
 	// Ensure that data moves with the map
 	map.on("viewreset", reset);
   	reset();
