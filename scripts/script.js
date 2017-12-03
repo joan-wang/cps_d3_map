@@ -230,14 +230,14 @@ function loadMap() {
 				.style('opacity', 0);
 		})
 		.on('click', clicked);
-	/*
+	
 	var heat = L.HeatLayer([
 	[41.8256, -87.62, 1], // lat, lng, intensity
 	[41.83, -87.8, 1],
 	[41.2, -87.7, 1],
 	], {radius: 25}).addTo(map);
-	*/
 	
+
 	// Ensure that data moves with the map
 	map.on("viewreset", reset);
   	reset();
