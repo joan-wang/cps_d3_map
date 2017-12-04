@@ -224,12 +224,18 @@ function loadMap() {
 
 	// Ensure that data moves with the map
 	map.on("viewreset", reset);
+	map.on('zoomstart', function(d) {
+		console.log('deleting');
+		d3.select("#map").selectAll("image").remove();})
+  	map.on('movestart', function(d) {
+  		console.log('deleting');
+  		d3.select("#map").selectAll("image").remove();})
+  	
   	reset();
 
 	function reset() {
 		// Get current map bounds
 		console.log('map was reset')
-		map_bounds = map.getBounds();
 		
 		// Compute bounding box
 	    var bounds = path.bounds(schools),
@@ -273,33 +279,31 @@ function clicked(d) {
 
 	// Zoom to selected school on the map
 	map.setView(L.latLng(active_school.data()[0].LatLng), 14);
-	console.log(map_bounds);
-	// Plot crimes
-	plotCrimes(d);
 }
 
-function plotCrimes(d) {
-	//console.log(map_bounds);
-	/*
+function plotCrimes(d) {	
+	var map_bounds = map.getBounds();
+	console.log(map_bounds);
+	
 	feature_crimes = g1.selectAll("myPoint")
 		.data(crimes.filter(function(d) {
 			//return (d.lat == 41.88065818 && d.lon == -87.73121214)
-			return (map_bounds._southWest.lat < d.lat) && (d.lat < bounds._northEast.lat) 
-				&& (bounds._southWest.lng < d.lon) && (d.lon < bounds._northEast.lng);
+			return (map_bounds._southWest.lat < d.lat) && (d.lat < map_bounds._northEast.lat) 
+				&& (map_bounds._southWest.lng < d.lon) && (d.lon < map_bounds._northEast.lng);
 		}))
 		.enter().append("image")
 		.attr('class', 'crime-location')
 		.attr('xlink:href', 'data/red_x_icon.png')
 		.attr('width', 5)
-		.attr('height', 5)*/
-	/*
+		.attr('height', 5)
+	
 	feature_crimes.attr("transform", function(d) { 
 		return "translate("+ 
 			map.latLngToLayerPoint(d.LatLng).x +","+ 
 			map.latLngToLayerPoint(d.LatLng).y +")";
 		});
-	*/
-	//console.log(feature_crimes)
+	
+	console.log(feature_crimes)
 }
 
 function hidePanel() {
@@ -338,6 +342,26 @@ function showPanel(selection) {
 			.attr("transform", "translate(" + margin.left + " ," + (margin.top + 27*i) + ")")
 			.text(textFields[i][1] + textFields[i][0])
 		}
+
+	// Button to show crime around a school
+	/*g2a.append('rect')
+			.attr('width', 100)
+			.attr('height', 30)
+			.attr('x', margin.left)
+			.attr('y', 140)
+			.attr('fill', '#440154ff')*/
+
+	g2a.append('text')
+			.attr("transform", "translate(" + margin.left + " ," + 155 + ")")
+			.attr('font-size', 20)
+			.attr('fill', '#440154ff')
+			.text('View crimes')
+		.on('click', plotCrimes)
+		.on("mouseover", function(d) {
+			d3.select(this)
+				.attr('cursor', 'pointer');	
+		})
+		
 
 	g2a.append('text')
 		.attr('font-size', 12)

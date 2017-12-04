@@ -67,14 +67,14 @@ li {
 }
 
 .route-location.hovered {
-    stroke: black;
+    stroke: blue;
     cursor: pointer;
     stroke-width: 4;
     stroke-opacity: 1;
 }
 
 .route-location.active {
-    stroke: black;
+    stroke: blue;
     cursor: pointer;
     stroke-width: 4;
     stroke-opacity: 1;
