@@ -102,7 +102,7 @@ function rowConverter(d) {
 			};
 		}
 
-d3.csv('data/crimes_2016_sample.csv', rowConverter, function(error, collection) {
+d3.csv('data/crimes_2016.csv', rowConverter, function(error, collection) {
 	if (error) { 
     	console.log(error);
   	} else {
@@ -139,15 +139,6 @@ function loadMap() {
 		this.stream.point(point.x, point.y);
 	}
 
-	var feature_crimes = g1.selectAll("myPoint")
-		.data(crimes)
-		.enter().append("image")
-		.attr('class', 'crime-location')
-		.attr('xlink:href', 'data/red_x_icon.png')
-		.attr('width', 5)
-		.attr('height', 5)
-		.attr('fill', 'red')
-		
 	// Option 1: Use circles as icons
 	var feature_schools = g1.selectAll("circle")
 		.data(schools.features)
@@ -230,19 +221,16 @@ function loadMap() {
 				.style('opacity', 0);
 		})
 		.on('click', clicked);
-	
-	var heat = L.HeatLayer([
-	[41.8256, -87.62, 1], // lat, lng, intensity
-	[41.83, -87.8, 1],
-	[41.2, -87.7, 1],
-	], {radius: 25}).addTo(map);
-	
 
 	// Ensure that data moves with the map
 	map.on("viewreset", reset);
   	reset();
 
 	function reset() {
+		// Get current map bounds
+		console.log('map was reset')
+		map_bounds = map.getBounds();
+		
 		// Compute bounding box
 	    var bounds = path.bounds(schools),
 	        topLeft = bounds[0],
@@ -253,13 +241,6 @@ function loadMap() {
 		    .style("top", topLeft[1] + "px");
 
 	    g1.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
-		
-		// Plot crimes as points
-		feature_crimes.attr("transform", function(d) { 
-			return "translate("+ 
-				map.latLngToLayerPoint(d.LatLng).x +","+ 
-				map.latLngToLayerPoint(d.LatLng).y +")";
-			});
 
 		// Plot schools as points
 		feature_schools.attr("transform", function(d) { 
@@ -267,6 +248,7 @@ function loadMap() {
 				map.latLngToLayerPoint(d.LatLng).x +","+ 
 				map.latLngToLayerPoint(d.LatLng).y +")";
 			});
+
 		//Plot routes as line paths
 		feature_routes.attr("d", path);
 	} 
@@ -290,7 +272,34 @@ function clicked(d) {
 	showPanel(active_school.data()[0]);
 
 	// Zoom to selected school on the map
-	map.setView(L.latLng(active_school.data()[0].LatLng), 13);
+	map.setView(L.latLng(active_school.data()[0].LatLng), 14);
+	console.log(map_bounds);
+	// Plot crimes
+	plotCrimes(d);
+}
+
+function plotCrimes(d) {
+	//console.log(map_bounds);
+	/*
+	feature_crimes = g1.selectAll("myPoint")
+		.data(crimes.filter(function(d) {
+			//return (d.lat == 41.88065818 && d.lon == -87.73121214)
+			return (map_bounds._southWest.lat < d.lat) && (d.lat < bounds._northEast.lat) 
+				&& (bounds._southWest.lng < d.lon) && (d.lon < bounds._northEast.lng);
+		}))
+		.enter().append("image")
+		.attr('class', 'crime-location')
+		.attr('xlink:href', 'data/red_x_icon.png')
+		.attr('width', 5)
+		.attr('height', 5)*/
+	/*
+	feature_crimes.attr("transform", function(d) { 
+		return "translate("+ 
+			map.latLngToLayerPoint(d.LatLng).x +","+ 
+			map.latLngToLayerPoint(d.LatLng).y +")";
+		});
+	*/
+	//console.log(feature_crimes)
 }
 
 function hidePanel() {
