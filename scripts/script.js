@@ -24,8 +24,6 @@ var schoolIcon = L.icon({
 	});
 
 // Create map object from Leaflet
-
-
 var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
     .addLayer(new L.TileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -35,13 +33,15 @@ var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
 	ext: 'png'
 	}));
 
-
+/*
 var heat = new L.HeatLayer([
 	[41.8256, -87.62, 10], // lat, lng, intensity
 	[41.83, -87.8, 10],
 	[41.2, -87.7, 10],
-	]).addTo(map);
+	]).addTo(map);*/
 /*
+
+// Alternative way to create map
 var base = new L.TileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 	subdomains: 'abcd',
