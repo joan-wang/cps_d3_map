@@ -24,6 +24,8 @@ var schoolIcon = L.icon({
 	});
 
 // Create map object from Leaflet
+
+
 var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
     .addLayer(new L.TileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -32,6 +34,37 @@ var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
 	maxZoom: 20,
 	ext: 'png'
 	}));
+
+
+var heat = new L.HeatLayer([
+	[41.8256, -87.62, 10], // lat, lng, intensity
+	[41.83, -87.8, 10],
+	[41.2, -87.7, 10],
+	]).addTo(map);
+/*
+var base = new L.TileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+	subdomains: 'abcd',
+	minZoom: 0,
+	maxZoom: 20,
+	ext: 'png'
+	});
+
+var heat = new L.HeatLayer([
+	[41.8256, -87.62, 10], // lat, lng, intensity
+	[41.83, -87.8, 10],
+	[41.2, -87.7, 10],
+	], {radius: 35});
+
+var heat = new L.heatLayer(addressPoints);
+
+console.log(base)
+console.log(heat)
+var map = new L.Map('map', {
+	center: [41.8256, -87.62], 
+	zoom: 11,
+	layers: [base, heat]
+}); */
 
 // Map and contents are svg1
 var svg1 = d3.select(map.getPanes().overlayPane).append("svg");
@@ -119,7 +152,7 @@ d3.csv('data/crimes_2016.csv', rowConverter, function(error, collection) {
 
 
 function startAuto(placeholder) {
-	mc = autocomplete(document.getElementById('search'))
+	var mc = autocomplete(document.getElementById('search'))
                 .keys(schools.features)
                 .dataField("shortName")
                 .placeHolder(placeholder)
@@ -354,7 +387,7 @@ function showPanel(selection) {
 	g2a.append('text')
 			.attr("transform", "translate(" + margin.left + " ," + 155 + ")")
 			.attr('font-size', 20)
-			.attr('fill', '#440154ff')
+			.attr('fill', 'red')
 			.text('View crimes')
 		.on('click', plotCrimes)
 		.on("mouseover", function(d) {

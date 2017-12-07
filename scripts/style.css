@@ -53,7 +53,7 @@ li {
 }   
 
 .specialline{
-    stroke: #0570b0;
+    stroke: blue;
     fill: none;
     stroke-width: 2.5;
     stroke-linejoin: round;
@@ -98,14 +98,17 @@ div.tooltip {
     position: absolute;         
     text-align: center;         
     width: auto;                 
-    height: 28px;                   
+    height: 35px;                   
     padding: 8px;               
-    font: 12px sans-serif;      
+    font: 14px; 
+    color: black; 
+    font-weight: bold;    
     background: lightsteelblue; 
     border: 0px;        
     border-radius: 8px;         
     pointer-events: none;           
 }
+
 
 #opening {
     padding-top: 20px;
