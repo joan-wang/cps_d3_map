@@ -33,38 +33,6 @@ var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
 	ext: 'png'
 	}));
 
-/*
-var heat = new L.HeatLayer([
-	[41.8256, -87.62, 10], // lat, lng, intensity
-	[41.83, -87.8, 10],
-	[41.2, -87.7, 10],
-	]).addTo(map);*/
-/*
-
-// Alternative way to create map
-var base = new L.TileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
-	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-	subdomains: 'abcd',
-	minZoom: 0,
-	maxZoom: 20,
-	ext: 'png'
-	});
-
-var heat = new L.HeatLayer([
-	[41.8256, -87.62, 10], // lat, lng, intensity
-	[41.83, -87.8, 10],
-	[41.2, -87.7, 10],
-	], {radius: 35});
-
-var heat = new L.heatLayer(addressPoints);
-
-console.log(base)
-console.log(heat)
-var map = new L.Map('map', {
-	center: [41.8256, -87.62], 
-	zoom: 11,
-	layers: [base, heat]
-}); */
 
 // Map and contents are svg1
 var svg1 = d3.select(map.getPanes().overlayPane).append("svg");
@@ -173,6 +141,7 @@ function loadMap() {
 	}
 
 	// Option 1: Use circles as icons
+	/*
 	var feature_schools = g1.selectAll("circle")
 		.data(schools.features)
 		.enter().append("circle")
@@ -206,27 +175,46 @@ function loadMap() {
 				.duration(500)
 				.style('opacity', 0);
 		})
-		.on('click', clicked)	
+		.on('click', clicked)	*/
 
 	// Option 2: Use school house as icons. TO DO: change colors
-	/*var feature_schools = g1.selectAll("myPoint")
+	var feature_schools = g1.selectAll("image")
 		.data(schools.features)
 		.enter().append("image")
-		.attr('xlink:href', 'data/school_icon.png')
-		.attr('width', 20)
-		.attr('height', 20)
-		.attr('color', '#ffd800')
-		.style('opacity', .5)
-		.style('color', 'ffd800');*/
-	
+		.attr('class', 'school-location')
+		.attr('xlink:href', 'data/school_icon_full.png')
+		.style('opacity', 0.5)
+		.on("mouseover", function(d) {
+			// Make school and corresponding route hover-formatted
+			d3.select(this)
+				.classed('hovered', true);
+			d3.selectAll('.route-location')
+				.filter(function(e) {return e.schoolID == d.schoolID})
+				.classed('hovered', true);
+			div.transition()
+  				.duration(200)
+  				.style('opacity', .9);
+  			div.html(d.shortName)
+  				.style("left", (d3.event.pageX) + "px")		
+            	.style("top", (d3.event.pageY - 40) + "px");
+		})
+		.on('mouseout', function(d) {
+			// Remove hover formatting for school and corresponding route
+			d3.select(this)
+				.classed('hovered', false);
+			d3.selectAll('.route-location')
+				.filter(function(e) {return e.schoolID == d.schoolID})
+				.classed('hovered', false);
+			div.transition()
+				.duration(500)
+				.style('opacity', 0);
+		})
+		.on('click', clicked)
+
 	var feature_routes = g1.selectAll("path")
 		.data(routes.features)
 		.enter().append("path")
 		.attr('class', 'route-location')
-		.attr('stroke', '#1696d2')
-		.attr('stroke-width', 3)
-		.attr('stroke-opacity', .6)
-		.attr('fill', 'none')
 		.on("mouseover", function(d) {
 			// Make route and corresponding school hover-formatted
 			d3.select(this)
@@ -259,10 +247,10 @@ function loadMap() {
 	map.on("viewreset", reset);
 	map.on('zoomstart', function(d) {
 		console.log('deleting');
-		d3.select("#map").selectAll("image").remove();})
+		d3.select("#map").selectAll("circle").remove();})
   	map.on('movestart', function(d) {
   		console.log('deleting');
-  		d3.select("#map").selectAll("image").remove();})
+  		d3.select("#map").selectAll("circle").remove();})
   	
   	reset();
 
@@ -295,10 +283,12 @@ function loadMap() {
 
 function clicked(d) {
 	// Make school dot active
-	active_school.classed('active', false);
+	active_school.classed('active', false)
+		.style('opacity', 0.5);
 	active_school = d3.selectAll('.school-location')
 		.filter(function(e) {return d.schoolID == e.schoolID})
-		.classed('active', true);
+		.classed('active', true)
+		.style('opacity', 1);
 
 	// Make path active
 	active_route.classed('active', false);
@@ -318,22 +308,22 @@ function plotCrimes(d) {
 	var map_bounds = map.getBounds();
 	console.log(map_bounds);
 	
-	feature_crimes = g1.selectAll("myPoint")
+	feature_crimes = g1.selectAll("circle")
 		.data(crimes.filter(function(d) {
 			//return (d.lat == 41.88065818 && d.lon == -87.73121214)
 			return (map_bounds._southWest.lat < d.lat) && (d.lat < map_bounds._northEast.lat) 
 				&& (map_bounds._southWest.lng < d.lon) && (d.lon < map_bounds._northEast.lng);
 		}))
-		.enter().append("image")
+		.enter().append("circle")
 		.attr('class', 'crime-location')
-		.attr('xlink:href', 'data/red_x_icon.png')
-		.attr('width', 5)
-		.attr('height', 5)
-	
+		.attr('fill', '#F85959')
+		.attr('fill-opacity', .2)
+		.attr('r', 3)
+	// Plot crimes, with random vertical and horizontal jitter between -5 and 5 pixels
 	feature_crimes.attr("transform", function(d) { 
 		return "translate("+ 
-			map.latLngToLayerPoint(d.LatLng).x +","+ 
-			map.latLngToLayerPoint(d.LatLng).y +")";
+			(map.latLngToLayerPoint(d.LatLng).x + Math.random()*10 - 5)+","+ 
+			(map.latLngToLayerPoint(d.LatLng).y + Math.random()*10 - 5) +")";
 		});
 	
 	console.log(feature_crimes)

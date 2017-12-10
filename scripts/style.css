@@ -66,32 +66,43 @@ li {
     fill: #5c5859;
 }
 
+.route-location {
+    stroke: #fbbc05;
+    stroke-width: 3;
+    stroke-opacity: 0.4;
+    fill: none;
+}
+
 .route-location.hovered {
-    stroke: blue;
+    stroke: #fbbc05;
     cursor: pointer;
     stroke-width: 4;
     stroke-opacity: 1;
 }
 
 .route-location.active {
-    stroke: blue;
+    stroke: #fbbc05;
     cursor: pointer;
     stroke-width: 4;
     stroke-opacity: 1;
 }
 
+.school-location {
+    width: 15px;
+    height: 15px;
+}
+
 .school-location.hovered {
-    fill: blue;
-    r: 8;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
-    fill-opacity: 1;
+    opacity: 1.0;
 }
 
 .school-location.active {
-    fill: blue;
-    r: 8;
-    cursor: pointer;
-    fill-opacity: 1;
+    width: 40px;
+    height: 40px;
+    opacity: 1.0;
 }
 
 div.tooltip {   
@@ -103,7 +114,7 @@ div.tooltip {
     font: 14px; 
     color: black; 
     font-weight: bold;    
-    background: lightsteelblue; 
+    background: #fff3b2; 
     border: 0px;        
     border-radius: 8px;         
     pointer-events: none;           
