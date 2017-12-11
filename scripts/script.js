@@ -135,15 +135,14 @@ d3.csv('data/gun_crimes_2016.csv', rowConverter, function(error, collection) {
   		crimes = collection;
   		console.log(crimes)
 
-  		if (!--remaining) loadMap(), startAuto("Search States - Start typing here");
+  		if (!--remaining) loadMap(), startAuto("Search Schools - Start typing here");
   	};
 });
-
 
 function startAuto(placeholder) {
 	var mc = autocomplete(document.getElementById('search'))
                 .keys(schools.features)
-                .dataField("shortName")
+                .dataField("longName")
                 .placeHolder(placeholder)
                 .width(960)
                 .height(500)
@@ -178,7 +177,7 @@ function loadMap() {
 			div.transition()
   				.duration(200)
   				.style('opacity', .9);
-  			div.html(d.shortName)
+  			div.html(d.longName)
   				.style("left", (d3.event.pageX) + "px")		
             	.style("top", (d3.event.pageY - 40) + "px");
 		})
@@ -210,7 +209,7 @@ function loadMap() {
 			div.transition()
   				.duration(100)
   				.style('opacity', .9);
-  			div.html(d.shortName)
+  			div.html(d.longName)
   				.style("left", (d3.event.pageX) + "px")		
             	.style("top", (d3.event.pageY - 28) + "px");
 		})
@@ -329,18 +328,36 @@ function showPanel(selection) {
 		})
 
 	// Fill in text info about selected school
-	var textFields = [[selection.shortName, 'School name: '], 
-		[selection.commArea, 'Community Area: '], 
+	var textFields = [[selection.commArea, 'Community Area: '], 
 		[selection.safePassage, "Safe Passage School: "],
 		[selection.enrollment, 'Student enrollment: ']]
 	
 	for (var i = 0; i < textFields.length; i++) { 
 		g2a.append('text')
 			.attr('font-size', 20)
-			.attr("transform", "translate(" + margin.left + " ," + (margin.top + 27*i) + ")")
+			.attr("transform", "translate(" + margin.left + " ," + (margin.top + 30*(i+2)) + ")")
 			.text(textFields[i][1] + textFields[i][0])
 		}
 
+	// Break out long name into two lines if necessary
+	if (selection.longName.length < 40) {
+		var nameSpliced = [selection.longName]
+	} else {
+		var first_substring = selection.longName.substring(0,35)
+		var splice_index = first_substring.lastIndexOf(' ')
+		var nameSpliced = [selection.longName.substring(0,splice_index), selection.longName.substring(splice_index + 1,)]
+	}
+
+	for (var i = 0; i < nameSpliced.length; i++) { 
+	g2a.append('text')
+		.attr('font-size', 25)
+		.attr('font-weight', 'bold')
+		.style('fill', '#406f65')
+		.attr("transform", "translate(" + margin.left + " ," + (margin.top + 30*(i)) + ")")
+		.text(nameSpliced[i])
+	}
+
+	// Additional text 
 	g2a.append('text')
 		.attr('font-size', 12)
 		.attr("transform", "translate(" + margin.left + " ," + (height - 30) + ")")
