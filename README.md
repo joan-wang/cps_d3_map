@@ -6,3 +6,4 @@ Sources referenced:
 - https://bl.ocks.org/mbostock/3883245  
 - http://bl.ocks.org/d3noob/a22c42db65eb00d4e369  
 - http://leafletjs.com/examples/choropleth/
+- https://www.w3schools.com/howto/howto_css_switch.asp
