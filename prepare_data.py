@@ -38,7 +38,7 @@ for feature in routes['features']:
     sp_schools.append(feature['properties']['schoolid'])
 
 # Join all datasets by school ID; only looking at schools in common between all
-df = progress1516[['School_Survey_Safety']].join(progress1617[['Long_Name', 'School_Survey_Safety']], how='inner', lsuffix = '_1516', rsuffix = '_1617')
+df = progress1516[['School_Survey_Safety']].join(progress1617[['Long_Name', 'School_Survey_Safety', 'CPS_School_Profile']], how='inner', lsuffix = '_1516', rsuffix = '_1617')
 df = df.join(num_crimes[['num_crimes_16']])
 df = df.join(profile[['Student_Count_Total']])
 df = df.join(attendance[['2012', '2013', '2014', '2015', '2016', '2017']])
@@ -68,7 +68,10 @@ for idx, feature in enumerate(schools['features']):
         
         # Number of crimes nearby
         feature['properties']['numCrimes'] = str(school_row['num_crimes_16'])
-    
+        
+        # School Profile
+        feature['properties']['schoolProfile'] = str(school_row['CPS_School_Profile'])
+        
         # Student enrollment
         feature['properties']['enrollment'] = str(school_row['Student_Count_Total'])
         

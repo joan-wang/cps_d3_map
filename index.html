@@ -17,39 +17,62 @@
   <script src="scripts/leaflet.js"></script>
 </head>
 <body>
+<header class="header clearfix">
+    <nav class="navbar fixed-bottom navbar-expand navbar-light" style="background-color: #d9fcf1;">
+        <a class="navbar-brand" href="https://www.github.com/joan-wang">&copy; Joan Wang</a>
+</header>
 
+<div class="first">
+  <img src='data/neonbrand-426918.jpg'>
+    <div class = 'centered'> 
+      <h4>Do Chicago Public School Students feel safe? </h4>
+      <p>Over 14,000 gun-related crimes were recorded in the City of Chicago in 2016. Many of these incidents happened near school grounds. </p>
+      <p>The Safe Passage Program is designed to ensure student safety during commutes to and from school.</p>
+      <p>
+    </div>
+    <div class='centered-bottom'>
+      <p> See how this program impacts schools across the city </p>
+      <div class="arrow-down" style='cursor: pointer'></div>
+    </div>
+</div>
+<div class='second'>
 <div id="opening">
   <div class="container">
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-7">
         <h1 class="projtitle">Safety in Chicago Public Schools</h1>
         <h4>A glance at CPS Safe Passage Routes, crime, and student safety</h4>
       </div>
-      <div class='col-md-6'>
+      <div class='col-md-5'>
         <p> Select a school on the map or search here </p>
         <div id='search'></div>
       </div>
     </div>
   </div>
 </div> 
-
-
 <div id='main-section'>
   <div class="container">
     <div class="row">
       <div class="col-md-7" id='map'></div>
       <div class="col-md-5 col-md-offset-2">
-        <div id='info-panel' class='inactive'><!-- TO DO: later add style="display: none" -->
+        <div id='info-panel' class='inactive'>
         </div>
       </div> 
     </div>    
   </div> 
+</div>
 </div>
 
 <script type="text/javascript" src="lib/d3.v4.min.js"></script>
 <script type="text/javascript" src="scripts/script.js"></script>
 <script type="text/javascript" src="scripts/autocomplete.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
-
+<script>
+$(".arrow-down").click(function() {
+    $('html,body').animate({
+        scrollTop: $(".second").offset().top},
+        'slow');
+});
+</script>
 </body>
 </html>

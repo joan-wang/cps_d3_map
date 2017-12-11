@@ -8,7 +8,7 @@ var div = d3.select('body').append('div')
 
 // TO DO: Fix margin convention
 // Set spacing for info panel
-var margin = {top: 20, right: 20, bottom: 10, left: 20}
+var margin = {top: 20, right: 10, bottom: 10, left: 10}
 var width = 550 - margin.left - margin.right;
 var height = 700 - margin.top - margin.bottom;
 
@@ -26,17 +26,6 @@ var map = new L.Map("map", {center: [41.8256, -87.65], zoom: 11})
 	maxZoom: 20,
 	ext: 'png'
 	}));
-
-function getColor(d) {
-    return d > 1000 ? '#800026' :
-           d > 500  ? '#BD0026' :
-           d > 200  ? '#E31A1C' :
-           d > 100  ? '#FC4E2A' :
-           d > 50   ? '#FD8D3C' :
-           d > 20   ? '#FEB24C' :
-           d > 10   ? '#FED976' :
-                      '#FFEDA0';
-};
 
 // Add a map legend
 var legend = L.control();
@@ -93,6 +82,7 @@ d3.json("data/locations_updated.geojson", function(error, collection) {
 			d.safePassage = d.properties.safePassage
 			d.attendance = d.properties.attendance
 			d.safety = d.properties.safety
+			d.schoolProfile = d.properties.schoolProfile
 		});
 		schools = collection;
 		console.log(schools)
@@ -142,7 +132,7 @@ d3.csv('data/gun_crimes_2016.csv', rowConverter, function(error, collection) {
 function startAuto(placeholder) {
 	var mc = autocomplete(document.getElementById('search'))
                 .keys(schools.features)
-                .dataField("longName")
+                .dataField("shortName")
                 .placeHolder(placeholder)
                 .width(960)
                 .height(500)
@@ -177,7 +167,7 @@ function loadMap() {
 			div.transition()
   				.duration(200)
   				.style('opacity', .9);
-  			div.html(d.longName)
+  			div.html(d.shortName)
   				.style("left", (d3.event.pageX) + "px")		
             	.style("top", (d3.event.pageY - 40) + "px");
 		})
@@ -209,7 +199,7 @@ function loadMap() {
 			div.transition()
   				.duration(100)
   				.style('opacity', .9);
-  			div.html(d.longName)
+  			div.html(d.shortName)
   				.style("left", (d3.event.pageX) + "px")		
             	.style("top", (d3.event.pageY - 28) + "px");
 		})
@@ -317,7 +307,7 @@ function showPanel(selection) {
 		.attr('xlink:href', 'data/exit.png')
 		.attr('width', 20)
 		.attr('height', 20)
-		.attr('transform', 'translate(' + (width-20) + " ," + 5 + ")")
+		.attr('transform', 'translate(' + (width-20) + " ," + 3 + ")")
 		.on('click', function(d) {
 			hidePanel(); 
 			active_school.classed('active', false);
@@ -330,7 +320,7 @@ function showPanel(selection) {
 	// Fill in text info about selected school
 	var textFields = [[selection.commArea, 'Community Area: '], 
 		[selection.safePassage, "Safe Passage School: "],
-		[selection.enrollment, 'Student enrollment: ']]
+		[selection.enrollment, 'Student Enrollment: ']]
 	
 	for (var i = 0; i < textFields.length; i++) { 
 		g2a.append('text')
@@ -338,6 +328,12 @@ function showPanel(selection) {
 			.attr("transform", "translate(" + margin.left + " ," + (margin.top + 30*(i+2)) + ")")
 			.text(textFields[i][1] + textFields[i][0])
 		}
+
+	g2a.append('text')
+		.attr('font-size', 20)
+		.style('fill', "#57b2a0")
+		.attr("transform", "translate(" + margin.left + " ," + (margin.top + 30*5) + ")")
+		.html("<a href=" + selection.schoolProfile + " target='_blank'>Link to school profile </a>")
 
 	// Break out long name into two lines if necessary
 	if (selection.longName.length < 40) {
@@ -361,12 +357,12 @@ function showPanel(selection) {
 	g2a.append('text')
 		.attr('font-size', 12)
 		.attr("transform", "translate(" + margin.left + " ," + (height - 30) + ")")
-		.text('Sources: Chicago Public Schools Safe Passage Routes SY16-17, City of Chicago Crimes 2016, ')
+		.text('Sources: Chicago Public Schools Progress Reports and Attendance Rates ')
 	
 	g2a.append('text')
 		.attr('font-size', 12)
 		.attr("transform", "translate(" + margin.left + " ," + (height - 15) + ")")
-		.text('Chicago Public Schools Progress Reports and Attendance Rates ')
+		.text('Chicago Public Schools Safe Passage Routes SY16-17, City of Chicago Gun-Related Crimes 2016, ')
 	
 	// Legend for two charts
 	g2a.append('line')
