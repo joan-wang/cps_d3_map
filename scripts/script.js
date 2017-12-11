@@ -16,15 +16,9 @@ var height = 700 - margin.top - margin.bottom;
 var chart_margin = {left: 50, right:10, top: 10, bottom:100}
 var chart_width = width/2 - chart_margin.left - chart_margin.right
 var chart_height = height*0.6 - chart_margin.bottom - chart_margin.top
-	
-// Define custom icon
-var schoolIcon = L.icon({
-	iconUrl: 'data/school_icon.png',
-	iconSize: [38, 95],
-	});
 
 // Create map object from Leaflet
-var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
+var map = new L.Map("map", {center: [41.8256, -87.65], zoom: 11})
     .addLayer(new L.TileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 	subdomains: 'abcd',
@@ -32,6 +26,35 @@ var map = new L.Map("map", {center: [41.8256, -87.62], zoom: 11})
 	maxZoom: 20,
 	ext: 'png'
 	}));
+
+function getColor(d) {
+    return d > 1000 ? '#800026' :
+           d > 500  ? '#BD0026' :
+           d > 200  ? '#E31A1C' :
+           d > 100  ? '#FC4E2A' :
+           d > 50   ? '#FD8D3C' :
+           d > 20   ? '#FEB24C' :
+           d > 10   ? '#FED976' :
+                      '#FFEDA0';
+};
+
+// Add a map legend
+var legend = L.control();
+
+legend.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'legend'); 
+    this._div.innerHTML = '<img src=data/school_icon_full.png align = left width = 18 height = 18 hspace = 10>' +
+    '<h4> School Location </h4>' + 
+    '<img src=data/sp_route.png align = left width = 18 height = 15 hspace = 10>' +  
+    '<h4> Safe Passage Route </h4>' + 
+    '<img src=data/crime.png align = left width = 18 height = 18 hspace = 10>' +  
+    '<h4> Gun-Related Crime </h4>' +
+    '<table><tr><td></td><td></td><td><h4><b> View Crimes </b></h4></td>' + 
+    '<td><label class="switch" onclick="plotCrimes()"> <input type="checkbox" id="crimeSwitch"> <span class="slider round"></span></label></td></tr></table>';
+    return this._div;
+};
+
+legend.addTo(map);
 
 
 // Map and contents are svg1
@@ -49,8 +72,6 @@ var g2a = svg2.append("g")
 
 var g2b = svg2.append("g")
 	.attr("transform", "translate(" + (margin.left + 0.5*width) + "," + margin.top + ")");
-
-
 
 // Load multiple data files in parallel
 var schools, passage, crimes, remaining = 3;
@@ -103,7 +124,7 @@ function rowConverter(d) {
 			};
 		}
 
-d3.csv('data/crimes_2016.csv', rowConverter, function(error, collection) {
+d3.csv('data/gun_crimes_2016.csv', rowConverter, function(error, collection) {
 	if (error) { 
     	console.log(error);
   	} else {
@@ -139,51 +160,14 @@ function loadMap() {
 		var point = map.latLngToLayerPoint(new L.LatLng(y, x));
 		this.stream.point(point.x, point.y);
 	}
-
-	// Option 1: Use circles as icons
-	/*
-	var feature_schools = g1.selectAll("circle")
-		.data(schools.features)
-		.enter().append("circle")
-		.attr('class', 'school-location')
-		.attr('fill', '#ffd800')
-		.attr('fill-opacity', .6)
-		.attr('r', 5)
-		.on("mouseover", function(d) {
-			// Make school and corresponding route hover-formatted
-			d3.select(this)
-				.classed('hovered', true);
-			d3.selectAll('.route-location')
-				.filter(function(e) {return e.schoolID == d.schoolID})
-				.classed('hovered', true);
-
-			div.transition()
-  				.duration(200)
-  				.style('opacity', .9);
-  			div.html(d.shortName)
-  				.style("left", (d3.event.pageX) + "px")		
-            	.style("top", (d3.event.pageY - 28) + "px");
-		})
-		.on('mouseout', function(d) {
-			// Remove hover formatting for school and corresponding route
-			d3.select(this).classed('hovered', false);
-			d3.selectAll('.route-location')
-				.filter(function(e) {return e.schoolID == d.schoolID})
-				.classed('hovered', false);
-				
-			div.transition()
-				.duration(500)
-				.style('opacity', 0);
-		})
-		.on('click', clicked)	*/
-
-	// Option 2: Use school house as icons. TO DO: change colors
+		
+	// Plot schools
 	var feature_schools = g1.selectAll("image")
 		.data(schools.features)
 		.enter().append("image")
 		.attr('class', 'school-location')
 		.attr('xlink:href', 'data/school_icon_full.png')
-		.style('opacity', 0.5)
+		.style('opacity', 0.6)
 		.on("mouseover", function(d) {
 			// Make school and corresponding route hover-formatted
 			d3.select(this)
@@ -224,7 +208,7 @@ function loadMap() {
 				.classed('hovered', true);
 				
 			div.transition()
-  				.duration(200)
+  				.duration(100)
   				.style('opacity', .9);
   			div.html(d.shortName)
   				.style("left", (d3.event.pageX) + "px")		
@@ -238,20 +222,16 @@ function loadMap() {
 				.classed('hovered', false);
 
 			div.transition()
-				.duration(500)
+				.duration(100)
 				.style('opacity', 0);
 		})
 		.on('click', clicked);
 
 	// Ensure that data moves with the map
-	map.on("viewreset", reset);
+	map.on("viewreset", reset);  	
 	map.on('zoomstart', function(d) {
-		console.log('deleting');
+		document.getElementById("crimeSwitch").checked = false;
 		d3.select("#map").selectAll("circle").remove();})
-  	map.on('movestart', function(d) {
-  		console.log('deleting');
-  		d3.select("#map").selectAll("circle").remove();})
-  	
   	reset();
 
 	function reset() {
@@ -304,29 +284,25 @@ function clicked(d) {
 	map.setView(L.latLng(active_school.data()[0].LatLng), 14);
 }
 
-function plotCrimes(d) {	
-	var map_bounds = map.getBounds();
-	console.log(map_bounds);
-	
-	feature_crimes = g1.selectAll("circle")
-		.data(crimes.filter(function(d) {
-			//return (d.lat == 41.88065818 && d.lon == -87.73121214)
-			return (map_bounds._southWest.lat < d.lat) && (d.lat < map_bounds._northEast.lat) 
-				&& (map_bounds._southWest.lng < d.lon) && (d.lon < map_bounds._northEast.lng);
-		}))
-		.enter().append("circle")
-		.attr('class', 'crime-location')
-		.attr('fill', '#F85959')
-		.attr('fill-opacity', .2)
-		.attr('r', 3)
-	// Plot crimes, with random vertical and horizontal jitter between -5 and 5 pixels
-	feature_crimes.attr("transform", function(d) { 
-		return "translate("+ 
-			(map.latLngToLayerPoint(d.LatLng).x + Math.random()*10 - 5)+","+ 
-			(map.latLngToLayerPoint(d.LatLng).y + Math.random()*10 - 5) +")";
+function plotCrimes() {	
+	if (document.getElementById("crimeSwitch").checked == true) {
+		var feature_crimes = g1.selectAll("circle")
+			.data(crimes)
+			.enter().append("circle")
+			.attr('class', 'crime-location')
+			.attr('fill', '#F54D42')
+			.attr('fill-opacity', .6)
+			.attr('r', 4)
+
+		// Plot crimes, with random vertical and horizontal jitter between -5 and 5 pixels
+		feature_crimes.attr("transform", function(d) { 
+			return "translate("+ 
+				(map.latLngToLayerPoint(d.LatLng).x + Math.random()*10 - 5)+","+ 
+				(map.latLngToLayerPoint(d.LatLng).y + Math.random()*10 - 5) +")";
 		});
-	
-	console.log(feature_crimes)
+	} else {
+		d3.select("#map").selectAll("circle").remove();
+	}
 }
 
 function hidePanel() {
@@ -356,8 +332,7 @@ function showPanel(selection) {
 	var textFields = [[selection.shortName, 'School name: '], 
 		[selection.commArea, 'Community Area: '], 
 		[selection.safePassage, "Safe Passage School: "],
-		[selection.enrollment, 'Student enrollment: '],
-		[selection.numCrimes, 'Number of crimes within 1 mile in 2016: ']]
+		[selection.enrollment, 'Student enrollment: ']]
 	
 	for (var i = 0; i < textFields.length; i++) { 
 		g2a.append('text')
@@ -365,26 +340,6 @@ function showPanel(selection) {
 			.attr("transform", "translate(" + margin.left + " ," + (margin.top + 27*i) + ")")
 			.text(textFields[i][1] + textFields[i][0])
 		}
-
-	// Button to show crime around a school
-	/*g2a.append('rect')
-			.attr('width', 100)
-			.attr('height', 30)
-			.attr('x', margin.left)
-			.attr('y', 140)
-			.attr('fill', '#440154ff')*/
-
-	g2a.append('text')
-			.attr("transform", "translate(" + margin.left + " ," + 155 + ")")
-			.attr('font-size', 20)
-			.attr('fill', 'red')
-			.text('View crimes')
-		.on('click', plotCrimes)
-		.on("mouseover", function(d) {
-			d3.select(this)
-				.attr('cursor', 'pointer');	
-		})
-		
 
 	g2a.append('text')
 		.attr('font-size', 12)
@@ -409,7 +364,6 @@ function showPanel(selection) {
 		.attr('transform', "translate(" + (width/2 + 50) + "," + (height * 1/3 + 30) + ")")
 		.attr('text-anchor', 'middle')
 		.text(' = Other schools in Community Area')
-	
 
 	attendanceChart(selection);
 	safetyChart(selection);
@@ -438,7 +392,6 @@ function attendanceChart(selection) {
 		.attr('transform', 'translate(' + chart_margin.left + ',' + 0 + ')')
 		.call(d3.axisLeft(y).ticks(10));
 	 
-	
 	//Label axes
 	g2a.append('text')
 		.attr('transform', 'translate(' + (chart_width/2 + chart_margin.left) + ',' + (height - chart_margin.bottom/1.7) + ')')
