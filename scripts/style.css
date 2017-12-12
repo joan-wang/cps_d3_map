@@ -195,15 +195,16 @@ div.tooltip {
 }
 
 #map {
-    width: auto;
+    width: 650px;
     height: 700px;
 }
 
 #info-panel {
+    margin-left: 10px;
     border-color: #dcdad6;
     border-style: solid;
     border-width: 2px;
-    width: 100%;
+    width: 400px;
     height: 700px;
     opacity: 1;
 }
