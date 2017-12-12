@@ -1,5 +1,7 @@
 # Safety in Chicago Public Schools -- An Interactive Map
 
+View it in action: https://joan-wang.github.io/cps_d3_map/  
+
 Accompanying static visualizations: https://joan-wang.github.io/cps_dataviz/  
 
 Sources referenced:  
