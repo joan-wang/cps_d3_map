@@ -179,7 +179,7 @@ div.tooltip {
 
 .second {
     width: 100%;
-    height: 1000px;
+    height: 900px;
     overflow: hidden;
 }
 
@@ -196,7 +196,7 @@ div.tooltip {
 
 #map {
     width: auto;
-    height: auto;
+    height: 700px;
 }
 
 #info-panel {
@@ -208,8 +208,17 @@ div.tooltip {
     opacity: 1;
 }
 
-#info-panel.active {
-    opacity: 1;
+.sources {
+  position: absolute;
+  right: 0px; 
+  width: 800px;
+  padding-right: 10px;
+  padding-top: 8px;
+  vertical-align: middle;
+}
+.sources p {
+  text-align: right;
+  font-size: 14px;
 }
 
 .legend h4 {

@@ -37,7 +37,7 @@ legend.onAdd = function (map) {
     '<img src=data/sp_route.png align = left width = 18 height = 15 hspace = 10>' +  
     '<h4> Safe Passage Route </h4>' + 
     '<img src=data/crime.png align = left width = 18 height = 18 hspace = 10>' +  
-    '<h4> Gun-Related Crime </h4>' +
+    '<h4> 2016 Gun Crime </h4>' +
     '<table><tr><td></td><td></td><td><h4><b> View Crimes </b></h4></td>' + 
     '<td><label class="switch" onclick="plotCrimes()"> <input type="checkbox" id="crimeSwitch"> <span class="slider round"></span></label></td></tr></table>';
     return this._div;
@@ -295,12 +295,22 @@ function plotCrimes() {
 }
 
 function hidePanel() {
-	d3.select("#info-panel").selectAll("text, path").remove();
-	d3.select('#info-panel').classed('active', false)
+	d3.select("#info-panel").selectAll("text, path, image, line, axis axis-left, axis axis-right").remove();
+	
+	g2a.append('text')
+			.attr('class', 'placeholderText')
+			.attr('transform', 'translate(' + (margin.left + 75) + " ," + (margin.top + height / 2 + 25) + ")")
+			.text('Begin by selecting a school on the map') 
+	
+	g2a.append('text')
+			.attr('class', 'placeholderText')
+			.attr('transform', 'translate(' + (margin.left + 160) + " ," + (margin.top + height / 2 + 50) + ")")
+			.text('or searching above')
 }
 
 function showPanel(selection) {
-	d3.select('#info-panel').classed('active', true)
+	// Remove placeholder
+	d3.select("#info-panel").selectAll("text").remove();
 
 	// Exit button
 	var exit = g2a.append('image')
@@ -345,24 +355,13 @@ function showPanel(selection) {
 	}
 
 	for (var i = 0; i < nameSpliced.length; i++) { 
-	g2a.append('text')
-		.attr('font-size', 25)
-		.attr('font-weight', 'bold')
-		.style('fill', '#406f65')
-		.attr("transform", "translate(" + margin.left + " ," + (margin.top + 30*(i)) + ")")
-		.text(nameSpliced[i])
+		g2a.append('text')
+			.attr('font-size', 25)
+			.attr('font-weight', 'bold')
+			.style('fill', '#406f65')
+			.attr("transform", "translate(" + margin.left + " ," + (margin.top + 30*(i)) + ")")
+			.text(nameSpliced[i])
 	}
-
-	// Additional text 
-	g2a.append('text')
-		.attr('font-size', 12)
-		.attr("transform", "translate(" + margin.left + " ," + (height - 30) + ")")
-		.text('Sources: Chicago Public Schools Progress Reports and Attendance Rates ')
-	
-	g2a.append('text')
-		.attr('font-size', 12)
-		.attr("transform", "translate(" + margin.left + " ," + (height - 15) + ")")
-		.text('Chicago Public Schools Safe Passage Routes SY16-17, City of Chicago Gun-Related Crimes 2016, ')
 	
 	// Legend for two charts
 	g2a.append('line')
