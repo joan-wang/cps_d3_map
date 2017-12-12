@@ -473,8 +473,14 @@ function safetyChart(selection) {
 	g2b.append('text')
 		.attr('transform', "translate(" + 15 + "," + (height * 0.8) + ")" + "rotate(-90)")
 		.attr('text-anchor', 'middle')
-		.text('School Survey Safety Rating')
+		.text('Safety Rating')
 		.style('font-size', 14)
+	g2b.append('text')
+		.attr('transform', "translate(" + 30 + "," + (height * 0.8) + ")" + "rotate(-90)")
+		.attr('text-anchor', 'middle')
+		.text('(0 = weak, 5 = strong)')
+		.style('font-size', 14)
+	
 	
 	// Label chart
 	g2a.append('text')
@@ -485,7 +491,7 @@ function safetyChart(selection) {
 	g2a.append('text')
 		.attr('transform', "translate(" + (chart_width/2 + chart_margin.left) + "," + (height - margin.bottom - chart_height - chart_margin.bottom - chart_margin.top) + ")")
 		.attr('text-anchor', 'middle')
-		.text('(based on student survey; 0 = very weak, 5 = very strong)')
+		.text('(based on student survey)')
 		.style('font-size', 12)
 
 	// Draw lines
