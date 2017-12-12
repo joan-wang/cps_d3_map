@@ -1,5 +1,7 @@
 # Safety in Chicago Public Schools -- An Interactive Map
 
+Accompanying static visualizations: https://joan-wang.github.io/cps_dataviz/  
+
 Sources referenced:  
 - https://bost.ocks.org/mike/leaflet/  
 - http://www.brightpointinc.com/clients/brightpointinc.com/library/autocomplete/  
