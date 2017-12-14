@@ -1,8 +1,12 @@
 var active_school = d3.select(null);
 var active_route = d3.select(null);
 
-// Define tooltip
+// Define tooltips
 var div = d3.select('body').append('div')
+	.attr('class', 'tooltip')
+	.style('opacity', 0);
+
+var div_q = d3.select('body').append('div')
 	.attr('class', 'tooltip')
 	.style('opacity', 0);
 
@@ -21,7 +25,7 @@ var map = new L.Map("map", {center: [41.8256, -87.65], zoom: 11})
     .addLayer(new L.TileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
 	attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 	subdomains: 'abcd',
-	minZoom: 0,
+	minZoom: 10,
 	maxZoom: 20,
 	ext: 'png'
 	}));
@@ -36,13 +40,32 @@ legend.onAdd = function (map) {
     '<img src=data/sp_route.png align = left width = 18 height = 15 hspace = 10>' +  
     '<h4> Safe Passage Route </h4>' + 
     '<img src=data/crime.png align = left width = 18 height = 18 hspace = 10>' +  
-    '<h4> 2016 Gun Crime </h4>' +
+    '<span> 2016 Gun Crime </span>' +
+    '<img src=data/question.png id="question">' + 
     '<table><tr><td></td><td></td><td><h4><b> View Crimes </b></h4></td>' + 
     '<td><label class="switch" onclick="plotCrimes()"> <input type="checkbox" id="crimeSwitch"> <span class="slider round"></span></label></td></tr></table>';
     return this._div;
 };
 
 legend.addTo(map);
+
+// Info box above definition of crime
+d3.select('#question')
+	.on("mouseover", function(d) {
+			div_q.transition()
+  				.duration(100)
+  				.style('opacity', .9)
+  			div_q.html('Reported incident of crime <br> in 2016, where description <br> contains "handgun" or "firearm"')
+  				.style("left", (d3.event.pageX) + "px")		
+            	.style("top", (d3.event.pageY - 28) + "px")
+            	.style('height', '80px')
+            	.style('font-weight', 'normal')
+		})
+	.on('mouseout', function(d) {
+			div_q.transition()
+				.duration(100)
+				.style('opacity', 0);
+		});
 
 
 // Map and contents are svg1
@@ -154,7 +177,6 @@ function loadMap() {
 		.enter().append("image")
 		.attr('class', 'school-location')
 		.attr('xlink:href', 'data/school_icon_full.png')
-		.style('opacity', 0.6)
 		.on("mouseover", function(d) {
 			// Make school and corresponding route hover-formatted
 			d3.select(this)

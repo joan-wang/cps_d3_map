@@ -23,11 +23,11 @@
         <div class = 'sources'>
           <p> Data Sources:&nbsp
           <a href="https://data.cityofchicago.org/Public-Safety/Gun-Crimes-Heat-Map/iinq-m3rg/data">City of Chicago Crimes</a>
-          ,&nbsp
+          &nbsp
           <a href = 'https://data.cityofchicago.org/Education/Chicago-Public-Schools-Safe-Passage-Routes-SY1617/ewfe-5r6t/data'> Safe Passage Routes</a> 
-          ,&nbsp
+          &nbsp
           <a href = 'https://cps.edu/SchoolData/Pages/SchoolData.aspx'> Attendance</a>
-          ,&nbsp
+          &nbsp
           <a href = 'https://data.cityofchicago.org/Education/Chicago-Public-Schools-School-Progress-Reports-SY1/cp7s-7gxg'> School Progress Reports </a></p>
         </dv>
 </header>
@@ -42,7 +42,7 @@
     </div>
     <div class='centered-bottom'>
       <p> See how this program impacts schools across the city </p>
-      <div class="arrow-down" style='cursor: pointer'></div>
+      <div id="arrow-down" style='cursor: pointer'></div>
     </div>
 </div>
 <div class='second'>
@@ -76,7 +76,7 @@
 <script type="text/javascript" src="scripts/autocomplete.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.5/leaflet.js"></script>
 <script>
-$(".arrow-down").click(function() {
+$("#arrow-down").click(function() {
     $('html,body').animate({
         scrollTop: $(".second").offset().top},
         'slow');
