@@ -56,7 +56,12 @@ table, td {
     stroke-width: 1.5;
     stroke-linejoin: round;
     stroke-linecap: round;
-}   
+}  
+
+.grayline.hovered {
+    cursor: pointer;
+    stroke: #406f65;
+} 
 
 .specialline{
     stroke: #406f65;
@@ -71,6 +76,7 @@ table, td {
     font-size: 12px;
     fill: #5c5859;
 }
+
 
 .route-location {
     stroke: #FFCD00;

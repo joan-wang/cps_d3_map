@@ -452,7 +452,27 @@ function attendanceChart(selection) {
       	.enter().append('path')
       	.attr('d', function(d) { return line(d.attendance); })
       	.attr('fill', 'none')
-      	.attr('class', 'grayline');
+      	.attr('class', 'grayline')
+      	.on("mouseover", function(d) {
+			// Make school and corresponding route hover-formatted
+			d3.select(this)
+				.classed('hovered', true);
+			div.transition()
+  				.duration(200)
+  				.style('opacity', .9);
+  			div.html(d.shortName)
+  				.style("left", (d3.event.pageX) + "px")		
+            	.style("top", (d3.event.pageY - 40) + "px");
+		})
+		.on('mouseout', function(d) {
+			// Remove hover formatting for school and corresponding route
+			d3.select(this)
+				.classed('hovered', false);
+			div.transition()
+				.duration(500)
+				.style('opacity', 0);
+		})
+		.on('click', clicked);
 
     g2a.append('path')
     	.attr('class', 'specialline')
@@ -524,7 +544,27 @@ function safetyChart(selection) {
       	.enter().append('path')
       	.attr('d', function(d) { return line(d.safety); })
       	.attr('fill', 'none')
-      	.attr('class', 'grayline');
+      	.attr('class', 'grayline')
+      	.on("mouseover", function(d) {
+			// Make school and corresponding route hover-formatted
+			d3.select(this)
+				.classed('hovered', true);
+			div.transition()
+  				.duration(200)
+  				.style('opacity', .9);
+  			div.html(d.shortName)
+  				.style("left", (d3.event.pageX) + "px")		
+            	.style("top", (d3.event.pageY - 40) + "px");
+		})
+		.on('mouseout', function(d) {
+			// Remove hover formatting for school and corresponding route
+			d3.select(this)
+				.classed('hovered', false);
+			div.transition()
+				.duration(500)
+				.style('opacity', 0);
+		})
+		.on('click', clicked);;
 
     g2b.append('path')
     	.attr('class', 'specialline')
